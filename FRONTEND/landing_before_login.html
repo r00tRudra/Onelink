@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OneLink — Portfolio from GitHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+  <style>
+    /* ─────────────────────────────────────────
+       RESET & TOKENS
+    ───────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0c0c0e;
+      --surface:   #131316;
+      --surface2:  #1a1a1f;
+      --border:    rgba(255,255,255,0.07);
+      --border2:   rgba(255,255,255,0.12);
+      --text:      #f0ede8;
+      --muted:     #7a7880;
+      --muted2:    #555260;
+      --accent:    #c8f04d;
+      --accent-dim:rgba(200,240,77,0.12);
+      --accent-mid:rgba(200,240,77,0.22);
+      --red:       #f87171;
+      --r: 14px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; font-family: inherit; }
+    img { display: block; max-width: 100%; }
+
+    /* ─────────────────────────────────────────
+       SCROLLBAR
+    ───────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #2a2a30; border-radius: 99px; }
+
+    /* ─────────────────────────────────────────
+       BACKGROUND CANVAS
+    ───────────────────────────────────────── */
+    .bg-canvas {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      overflow: hidden;
+    }
+    .bg-canvas::before {
+      content: '';
+      position: absolute;
+      width: 800px; height: 800px;
+      top: -300px; left: 50%; transform: translateX(-50%);
+      background: radial-gradient(circle, rgba(200,240,77,0.08) 0%, transparent 65%);
+      animation: glow 8s ease-in-out infinite alternate;
+    }
+    .bg-canvas::after {
+      content: '';
+      position: absolute;
+      width: 500px; height: 500px;
+      bottom: 0; right: -100px;
+      background: radial-gradient(circle, rgba(100,140,255,0.05) 0%, transparent 70%);
+    }
+    .bg-grid {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black, transparent);
+    }
+    @keyframes glow { from{opacity:.6} to{opacity:1} }
+
+    /* ─────────────────────────────────────────
+       LAYOUT HELPERS
+    ───────────────────────────────────────── */
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative; z-index: 1;
+    }
+
+    /* ─────────────────────────────────────────
+       NAV
+    ───────────────────────────────────────── */
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(12,12,14,0.82);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px;
+    }
+    .nav-logo {
+      font-family: 'Instrument Serif', serif;
+      font-size: 22px; letter-spacing: -.02em;
+    }
+    .nav-logo em { font-style: italic; color: var(--accent); }
+
+    .nav-links {
+      display: flex; align-items: center; gap: 8px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 14px; color: var(--muted); padding: 6px 12px;
+      border-radius: 8px;
+      transition: color .15s, background .15s;
+    }
+    .nav-links a:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+
+    /* auth nav state */
+    .nav-auth { display: flex; align-items: center; gap: 10px; }
+    .avatar-chip {
+      display: flex; align-items: center; gap: 8px;
+      padding: 4px 12px 4px 4px;
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      background: var(--surface);
+      font-size: 13px;
+      transition: border-color .15s;
+    }
+    .avatar-chip:hover { border-color: var(--border2); }
+    .avatar-chip img { width: 26px; height: 26px; border-radius: 50%; background: #2a2a30; }
+    .avatar-chip span { color: var(--muted); }
+
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; padding: 4px;
+    }
+    .hamburger span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; transition: all .25s; }
+
+    /* ─────────────────────────────────────────
+       BUTTONS
+    ───────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 10px 20px; border-radius: var(--r);
+      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+      border: none; cursor: pointer;
+      transition: all .18s;
+    }
+    .btn-primary {
+      background: var(--accent); color: #0c0c0e;
+    }
+    .btn-primary:hover { background: #d4f560; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(200,240,77,0.25); }
+    .btn-primary:active { transform: none; box-shadow: none; }
+
+    .btn-outline {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border2);
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
+
+    .btn-ghost {
+      background: rgba(255,255,255,0.04); color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.08); }
+
+    .btn-danger {
+      background: rgba(248,113,113,0.12); color: var(--red);
+      border: 1px solid rgba(248,113,113,0.2);
+    }
+    .btn-danger:hover { background: rgba(248,113,113,0.2); }
+
+    .btn-sm { padding: 7px 14px; font-size: 13px; }
+    .btn-lg { padding: 14px 28px; font-size: 15px; border-radius: 12px; }
+
+    /* ─────────────────────────────────────────
+       BADGE
+    ───────────────────────────────────────── */
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--accent-dim); border: 1px solid var(--accent-mid);
+      border-radius: 99px; padding: 4px 14px;
+      font-size: 12px; font-weight: 500; letter-spacing: .03em; color: var(--accent);
+    }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: blink 1.8s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1}50%{opacity:.3} }
+
+    /* ─────────────────────────────────────────
+       HERO
+    ───────────────────────────────────────── */
+    .hero {
+      padding: 100px 0 80px;
+      text-align: center;
+    }
+    .hero-badge { margin-bottom: 28px; }
+    .hero h1 {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(48px, 8vw, 84px);
+      line-height: 1.02; letter-spacing: -.03em;
+      margin-bottom: 22px;
+    }
+    .hero h1 em { font-style: italic; color: var(--accent); }
+    .hero p {
+      font-size: clamp(16px, 2.2vw, 20px);
+      color: var(--muted); max-width: 520px; margin: 0 auto 40px; line-height: 1.6;
+      font-weight: 300;
+    }
+    .hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    /* profile strip */
+    .profile-strip {
+      margin-top: 64px;
+      display: flex; align-items: center; justify-content: center; gap: 0;
+    }
+    .strip-avatars { display: flex; }
+    .strip-avatars .av {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 2px solid var(--bg);
+      background: linear-gradient(135deg, #2a2a38, #3a3a50);
+      margin-left: -10px; font-size: 11px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted);
+    }
+    .strip-avatars .av:first-child { margin-left: 0; }
+    .strip-text { margin-left: 14px; font-size: 13px; color: var(--muted); }
+    .strip-text strong { color: var(--text); }
+
+    /* ─────────────────────────────────────────
+       PREVIEW CARD
+    ───────────────────────────────────────── */
+    .preview-wrap {
+      margin: 0 auto 80px;
+      max-width: 860px;
+      position: relative; z-index: 1;
+    }
+    .preview-frame {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 40px 120px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+    }
+    .frame-bar {
+      display: flex; align-items: center; gap: 6px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+    }
+    .frame-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .d-red { background: #ff5f57; } .d-yellow { background: #febc2e; } .d-green { background: #28c840; }
+    .frame-url {
+      flex: 1; margin: 0 12px;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: 6px; padding: 4px 10px;
+      font-size: 12px; color: var(--muted); text-align: center;
+    }
+    .frame-body { padding: 32px; }
+    /* mini portfolio mockup */
+    .mock-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+    .mock-avatar { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg,#2a3a5a,#3a5a8a); flex-shrink:0; }
+    .mock-name { font-family: 'Instrument Serif', serif; font-size: 22px; }
+    .mock-handle { font-size: 13px; color: var(--muted); }
+    .mock-bio { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .mock-stats { display: flex; gap: 24px; margin-bottom: 28px; }
+    .mock-stat label { display: block; font-size: 11px; color: var(--muted2); text-transform: uppercase; letter-spacing:.06em; margin-bottom:3px; }
+    .mock-stat span { font-size: 20px; font-weight: 600; }
+    .mock-repos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .mock-repo {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px;
+    }
+    .mock-repo-name { font-size: 13px; font-weight: 600; margin-bottom: 4px; color: var(--accent); }
+    .mock-repo-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .mock-repo-lang { display: flex; align-items: center; gap: 5px; margin-top: 10px; font-size: 11px; color: var(--muted); }
+    .lang-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    /* ─────────────────────────────────────────
+       FEATURES GRID
+    ───────────────────────────────────────── */
+    section { position: relative; z-index: 1; }
+    .section-label {
+      font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 14px;
+    }
+    .section-title {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(32px, 5vw, 52px);
+      line-height: 1.05; letter-spacing: -.025em;
+      margin-bottom: 14px;
+    }
+    .section-title em { font-style: italic; color: var(--accent); }
+    .section-sub { font-size: 16px; color: var(--muted); max-width: 480px; line-height: 1.6; font-weight: 300; }
+
+    .features { padding: 80px 0; }
+    .features-header { text-align: center; margin-bottom: 56px; }
+    .features-header .section-sub { margin: 0 auto; }
+
+    .feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .feat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 28px;
+      transition: border-color .2s, transform .2s, box-shadow .2s;
+    }
+    .feat-card:hover { border-color: var(--border2); transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+    .feat-icon {
+      width: 42px; height: 42px; border-radius: 10px;
+      background: var(--accent-dim); border: 1px solid var(--accent-mid);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; margin-bottom: 16px;
+    }
+    .feat-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+    .feat-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+    /* ─────────────────────────────────────────
+       HOW IT WORKS
+    ───────────────────────────────────────── */
+    .how { padding: 80px 0; }
+    .how-inner {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: center;
+    }
+    .steps { display: flex; flex-direction: column; gap: 0; margin-top: 36px; }
+    .step {
+      display: flex; gap: 20px;
+      padding: 24px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .step:last-child { border-bottom: none; }
+    .step-num {
+      width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+      background: var(--surface2); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600; color: var(--muted);
+      transition: all .2s;
+    }
+    .step.active .step-num { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    .step-body h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .step-body p  { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .step.active .step-body h4 { color: var(--accent); }
+
+    .how-visual {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 18px; padding: 32px; min-height: 340px;
+      display: flex; flex-direction: column; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    .how-visual::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at 80% 20%, rgba(200,240,77,0.05), transparent 60%);
+    }
+    .visual-pane { display: none; animation: fadeIn .3s ease; }
+    .visual-pane.active { display: block; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+    .code-block {
+      background: rgba(0,0,0,0.4); border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px; font-family: monospace; font-size: 13px; line-height: 1.7;
+    }
+    .code-block .kw { color: #89ddff; } .code-block .str { color: #c3e88d; }
+    .code-block .fn  { color: #82aaff; } .code-block .cm  { color: #546e7a; }
+
+    .sync-list { display: flex; flex-direction: column; gap: 10px; }
+    .sync-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border-radius: 10px;
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .sync-check { width: 18px; height: 18px; border-radius: 50%; background: var(--accent-dim); border: 1px solid var(--accent-mid); display:flex;align-items:center;justify-content:center; font-size:10px; color:var(--accent); }
+
+    /* ─────────────────────────────────────────
+       TESTIMONIALS / STATS
+    ───────────────────────────────────────── */
+    .stats { padding: 64px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; gap: 24px; }
+    .stat-val { font-family: 'Instrument Serif', serif; font-size: 48px; letter-spacing:-.03em; }
+    .stat-val em { font-style: italic; color: var(--accent); }
+    .stat-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+    /* ─────────────────────────────────────────
+       CTA BANNER
+    ───────────────────────────────────────── */
+    .cta-section { padding: 100px 0; }
+    .cta-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 24px; padding: 64px;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .cta-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 50% -10%, rgba(200,240,77,0.09), transparent 70%);
+      pointer-events: none;
+    }
+    .cta-card h2 {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(32px, 5vw, 54px); letter-spacing: -.025em; margin-bottom: 16px;
+    }
+    .cta-card h2 em { font-style: italic; color: var(--accent); }
+    .cta-card p { font-size: 16px; color: var(--muted); max-width: 440px; margin: 0 auto 36px; line-height: 1.6; }
+    .cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    /* ─────────────────────────────────────────
+       FOOTER
+    ───────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 0;
+      position: relative; z-index: 1;
+    }
+    .footer-inner {
+      display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+    }
+    .footer-logo { font-family: 'Instrument Serif', serif; font-size: 18px; }
+    .footer-logo em { font-style: italic; color: var(--accent); }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a { font-size: 13px; color: var(--muted); transition: color .15s; }
+    .footer-links a:hover { color: var(--text); }
+    .footer-copy { font-size: 12px; color: var(--muted2); }
+
+    /* ─────────────────────────────────────────
+       MOBILE NAV DRAWER
+    ───────────────────────────────────────── */
+    .mobile-nav {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-drawer {
+      background: var(--surface); width: 280px; height: 100%;
+      border-right: 1px solid var(--border);
+      padding: 24px; display: flex; flex-direction: column; gap: 8px;
+      animation: slideIn .25s ease;
+    }
+    @keyframes slideIn { from{transform:translateX(-100%)} to{transform:none} }
+    .mobile-drawer a, .mobile-drawer button {
+      display: block; padding: 12px; border-radius: 10px;
+      font-size: 15px; color: var(--text);
+      background: none; border: none; text-align: left; width: 100%;
+      transition: background .15s;
+    }
+    .mobile-drawer a:hover, .mobile-drawer button:hover { background: rgba(255,255,255,0.05); }
+    .drawer-close {
+      align-self: flex-end; margin-bottom: 16px;
+      background: none; border: none; color: var(--muted);
+      font-size: 22px; cursor: pointer;
+    }
+
+    /* ─────────────────────────────────────────
+       NOTIFICATION TOAST
+    ───────────────────────────────────────── */
+    .toast {
+      position: fixed; bottom: 28px; right: 28px; z-index: 999;
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 12px; padding: 14px 20px;
+      font-size: 14px; color: var(--text);
+      display: flex; align-items: center; gap: 10px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+      transform: translateY(20px); opacity: 0;
+      transition: all .3s cubic-bezier(.22,1,.36,1);
+      pointer-events: none;
+    }
+    .toast.show { transform: none; opacity: 1; pointer-events: auto; }
+    .toast-icon { font-size: 18px; }
+
+    /* ─────────────────────────────────────────
+       ANIMATIONS
+    ───────────────────────────────────────── */
+    .reveal {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+    .reveal-delay-1 { transition-delay: .1s; }
+    .reveal-delay-2 { transition-delay: .2s; }
+    .reveal-delay-3 { transition-delay: .3s; }
+    .reveal-delay-4 { transition-delay: .4s; }
+
+    /* ─────────────────────────────────────────
+       RESPONSIVE
+    ───────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .feat-grid { grid-template-columns: 1fr 1fr; }
+      .how-inner { grid-template-columns: 1fr; }
+      .how-visual { min-height: 220px; }
+      .stats-grid { grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width: 640px) {
+      .nav-links, .nav-auth { display: none; }
+      .hamburger { display: flex; }
+      .feat-grid { grid-template-columns: 1fr; }
+      .mock-repos { grid-template-columns: 1fr; }
+      .cta-card { padding: 40px 24px; }
+      .footer-inner { flex-direction: column; align-items: flex-start; }
+      .hero { padding: 60px 0 48px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ──────────────── BG ──────────────── -->
+<div class="bg-canvas"></div>
+<div class="bg-grid"></div>
+
+<!-- ──────────────── HEADER ──────────────── -->
+<header>
+  <nav class="container">
+    <a href="/" class="nav-logo">One<em>Link</em></a>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#stats">Stats</a></li>
+    </ul>
+
+    <div class="nav-auth" id="navAuth">
+      <!-- injected by JS based on auth state -->
+    </div>
+
+    <button class="hamburger" id="hamburgerBtn" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+</header>
+
+<!-- ──────────────── MOBILE DRAWER ──────────────── -->
+<div class="mobile-nav" id="mobileNav">
+  <div class="mobile-drawer">
+    <button class="drawer-close" id="drawerClose">✕</button>
+    <a href="#features" onclick="closeMobileNav()">Features</a>
+    <a href="#how"      onclick="closeMobileNav()">How it works</a>
+    <a href="#stats"    onclick="closeMobileNav()">Stats</a>
+    <hr style="border-color:var(--border);margin:8px 0" />
+    <div id="mobileAuthLinks"></div>
+  </div>
+</div>
+
+<!-- ──────────────── HERO ──────────────── -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge reveal">
+      <div class="badge"><span class="badge-dot"></span> Now in Beta · Free</div>
+    </div>
+    <h1 class="reveal reveal-delay-1">Your portfolio,<br/><em>built from code.</em></h1>
+    <p class="reveal reveal-delay-2">Connect GitHub once. Get a stunning, shareable portfolio that updates automatically with every push.</p>
+    <div class="hero-cta reveal reveal-delay-3">
+      <button class="btn btn-primary btn-lg" onclick="handleLogin('github')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+        </svg>
+        Start with GitHub
+      </button>
+      <a href="#features" class="btn btn-outline btn-lg">See features</a>
+    </div>
+
+    <div class="profile-strip reveal reveal-delay-4">
+      <div class="strip-avatars">
+        <div class="av">JD</div>
+        <div class="av">AK</div>
+        <div class="av">MR</div>
+        <div class="av">+</div>
+      </div>
+      <div class="strip-text">Joined by <strong>1,200+ developers</strong> this month</div>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────── PREVIEW ──────────────── -->
+<div class="preview-wrap container reveal">
+  <div class="preview-frame">
+    <div class="frame-bar">
+      <div class="frame-dot d-red"></div>
+      <div class="frame-dot d-yellow"></div>
+      <div class="frame-dot d-green"></div>
+      <div class="frame-url">onelink.dev/<strong id="previewUsername">yourname</strong></div>
+    </div>
+    <div class="frame-body">
+      <div class="mock-header">
+        <div class="mock-avatar"></div>
+        <div>
+          <div class="mock-name" id="mockName">Your Name</div>
+          <div class="mock-handle" id="mockHandle">@yourname · Full-Stack Developer</div>
+          <div class="mock-bio">Building cool things with code 🚀</div>
+        </div>
+      </div>
+      <div class="mock-stats">
+        <div class="mock-stat"><label>Repos</label><span>42</span></div>
+        <div class="mock-stat"><label>Stars</label><span>1.2k</span></div>
+        <div class="mock-stat"><label>Followers</label><span>340</span></div>
+        <div class="mock-stat"><label>Years</label><span>5</span></div>
+      </div>
+      <div class="mock-repos">
+        <div class="mock-repo">
+          <div class="mock-repo-name">awesome-api</div>
+          <div class="mock-repo-desc">A fast REST API built with FastAPI and PostgreSQL</div>
+          <div class="mock-repo-lang"><span class="lang-dot" style="background:#3572A5"></span>Python · ★ 312</div>
+        </div>
+        <div class="mock-repo">
+          <div class="mock-repo-name">portfolio-v3</div>
+          <div class="mock-repo-desc">Personal site built with Next.js and Tailwind</div>
+          <div class="mock-repo-lang"><span class="lang-dot" style="background:#f1e05a"></span>TypeScript · ★ 89</div>
+        </div>
+        <div class="mock-repo">
+          <div class="mock-repo-name">ml-experiments</div>
+          <div class="mock-repo-desc">Notebook collection for ML research</div>
+          <div class="mock-repo-lang"><span class="lang-dot" style="background:#e34c26"></span>Jupyter · ★ 156</div>
+        </div>
+        <div class="mock-repo">
+          <div class="mock-repo-name">cli-tools</div>
+          <div class="mock-repo-desc">Productivity tools for the terminal</div>
+          <div class="mock-repo-lang"><span class="lang-dot" style="background:#00ADD8"></span>Go · ★ 74</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ──────────────── FEATURES ──────────────── -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="features-header">
+      <div class="section-label reveal">Everything you need</div>
+      <h2 class="section-title reveal reveal-delay-1">Your GitHub,<br/><em>beautifully presented</em></h2>
+      <p class="section-sub reveal reveal-delay-2">No design skills needed. OneLink automatically generates a portfolio that looks like it took weeks to build.</p>
+    </div>
+
+    <div class="feat-grid">
+      <div class="feat-card reveal">
+        <div class="feat-icon">🔗</div>
+        <h3>One-click connect</h3>
+        <p>Sign in with GitHub and your portfolio is live in seconds. No config, no templates to fill.</p>
+      </div>
+      <div class="feat-card reveal reveal-delay-1">
+        <div class="feat-icon">🔄</div>
+        <h3>Auto-sync repos</h3>
+        <p>Push code and your portfolio updates automatically. Stars, languages, descriptions — always fresh.</p>
+      </div>
+      <div class="feat-card reveal reveal-delay-2">
+        <div class="feat-icon">🎨</div>
+        <h3>Beautiful design</h3>
+        <p>A clean, professional layout that makes your projects shine. Dark mode included.</p>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon">📱</div>
+        <h3>Fully responsive</h3>
+        <p>Looks stunning on every screen — desktop, tablet, or phone. Share it anywhere.</p>
+      </div>
+      <div class="feat-card reveal reveal-delay-1">
+        <div class="feat-icon">✏️</div>
+        <h3>Custom domain</h3>
+        <p>Get <code style="color:var(--accent);font-size:12px">onelink.dev/yourname</code> instantly, or bring your own domain.</p>
+      </div>
+      <div class="feat-card reveal reveal-delay-2">
+        <div class="feat-icon">🔒</div>
+        <h3>Read-only access</h3>
+        <p>We only read your public GitHub data. No write access, no storing your code. Ever.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────── STATS ──────────────── -->
+<section class="stats" id="stats">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="reveal">
+        <div class="stat-val">12<em>k</em></div>
+        <div class="stat-label">Portfolios created</div>
+      </div>
+      <div class="reveal reveal-delay-1">
+        <div class="stat-val">98<em>%</em></div>
+        <div class="stat-label">Setup in under 60 s</div>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div class="stat-val">4.<em>9</em></div>
+        <div class="stat-label">Average rating</div>
+      </div>
+      <div class="reveal reveal-delay-3">
+        <div class="stat-val">0<em>$</em></div>
+        <div class="stat-label">Free to start</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────── HOW IT WORKS ──────────────── -->
+<section class="how" id="how">
+  <div class="container">
+    <div class="how-inner">
+      <div>
+        <div class="section-label reveal">Simple process</div>
+        <h2 class="section-title reveal reveal-delay-1">Up and running<br/><em>in minutes</em></h2>
+        <div class="steps">
+          <div class="step active" data-step="0" onclick="setStep(0)">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h4>Login with GitHub</h4>
+              <p>Click once. We use OAuth so you never share your password.</p>
+            </div>
+          </div>
+          <div class="step" data-step="1" onclick="setStep(1)">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h4>We sync your repos</h4>
+              <p>Languages, stars, descriptions and pinned projects pulled automatically.</p>
+            </div>
+          </div>
+          <div class="step" data-step="2" onclick="setStep(2)">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h4>Customise your profile</h4>
+              <p>Add experience, education, skills and a bio in the dashboard.</p>
+            </div>
+          </div>
+          <div class="step" data-step="3" onclick="setStep(3)">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <h4>Share your link</h4>
+              <p>Send <code style="color:var(--accent);font-size:12px">onelink.dev/you</code> to anyone — employers, clients, friends.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="how-visual reveal reveal-delay-1">
+        <!-- Step 0 -->
+        <div class="visual-pane active" id="pane-0">
+          <p style="font-size:12px;color:var(--muted);margin-bottom:12px">OAuth flow</p>
+          <div class="code-block">
+            <span class="cm">// Redirect to GitHub</span><br/>
+            <span class="kw">window</span>.location.href = <span class="str">`${API_URL}/auth/login`</span>;<br/><br/>
+            <span class="cm">// Backend exchanges code → JWT</span><br/>
+            <span class="fn">create_access_token</span>({ sub: user.id })
+          </div>
+        </div>
+        <!-- Step 1 -->
+        <div class="visual-pane" id="pane-1">
+          <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Syncing repositories</p>
+          <div class="sync-list">
+            <div class="sync-item"><div class="sync-check">✓</div>awesome-api · Python · ★312</div>
+            <div class="sync-item"><div class="sync-check">✓</div>portfolio-v3 · TypeScript · ★89</div>
+            <div class="sync-item"><div class="sync-check">✓</div>ml-experiments · Jupyter · ★156</div>
+            <div class="sync-item"><div class="sync-check">✓</div>cli-tools · Go · ★74</div>
+          </div>
+        </div>
+        <!-- Step 2 -->
+        <div class="visual-pane" id="pane-2">
+          <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Dashboard editor</p>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--muted)">
+              Bio: <span style="color:var(--text)">Building cool things with code 🚀</span>
+            </div>
+            <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--muted)">
+              Skills: <span style="color:var(--accent)">Python · TypeScript · Go · React</span>
+            </div>
+            <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--muted)">
+              Experience: <span style="color:var(--text)">2 entries added</span>
+            </div>
+          </div>
+        </div>
+        <!-- Step 3 -->
+        <div class="visual-pane" id="pane-3">
+          <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Your portfolio is live 🎉</p>
+          <div style="text-align:center">
+            <div style="font-family:'Instrument Serif',serif;font-size:28px;color:var(--accent);margin-bottom:8px">onelink.dev/yourname</div>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:20px">Share this link anywhere</p>
+            <button class="btn btn-ghost btn-sm" onclick="showToast('Link copied to clipboard!')">Copy link</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────── CTA ──────────────── -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-card reveal">
+      <div class="badge" style="margin-bottom:24px"><span class="badge-dot"></span>Free · No credit card</div>
+      <h2>Ready to build your<br/><em>portfolio?</em></h2>
+      <p>Join thousands of developers who already have their perfect portfolio live on OneLink.</p>
+      <div class="cta-btns">
+        <button class="btn btn-primary btn-lg" onclick="handleLogin('github')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+          </svg>
+          Get started — it's free
+        </button>
+        <button class="btn btn-outline btn-lg" onclick="handleLogin('google')">
+          <svg width="17" height="17" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+          Continue with Google
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────── FOOTER ──────────────── -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <span class="footer-logo">One<em>Link</em></span>
+      <div class="footer-links">
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="auth.html">Login</a>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+      </div>
+      <span class="footer-copy">© 2024 OneLink Portfolio. Built with ❤️</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ──────────────── TOAST ──────────────── -->
+<div class="toast" id="toast">
+  <span class="toast-icon">✓</span>
+  <span id="toastMsg"></span>
+</div>
+
+<!-- ──────────────── SCRIPTS ──────────────── -->
+<script>
+  /* ── CONFIG ── */
+  const API_URL = 'http://localhost:8000';
+  const FRONTEND_URL = 'http://localhost:3000';
+
+  /* ── AUTH STATE ── */
+  function getUser() {
+    try { return JSON.parse(localStorage.getItem('auth_user')); } catch { return null; }
+  }
+  function getToken() { return localStorage.getItem('access_token'); }
+  const isAuth = () => !!getToken();
+
+  /* ── RENDER NAV ── */
+  function renderNav() {
+    const navAuth = document.getElementById('navAuth');
+    const mobileAuth = document.getElementById('mobileAuthLinks');
+    const user = getUser();
+
+    if (isAuth() && user) {
+      navAuth.innerHTML = `
+        <a href="./landing_after_login.html" class="avatar-chip">
+          <img src="${user.avatar_url || ''}" onerror="this.style.display='none'" alt="">
+          <span>${user.portfolio_username || user.github_username}</span>
+        </a>
+        <button class="btn btn-ghost btn-sm" onclick="handleLogout()">Logout</button>
+      `;
+      mobileAuth.innerHTML = `
+        <a href="./landing_after_login.html">Dashboard</a>
+        <a href="./landing_after_login.html">Portfolio</a>
+        <button onclick="handleLogout()">Logout</button>
+      `;
+      // Update preview mockup with real user
+      if (user.github_username) {
+        document.getElementById('previewUsername').textContent = user.portfolio_username || user.github_username;
+        document.getElementById('mockName').textContent = user.github_username;
+        document.getElementById('mockHandle').textContent = '@' + user.github_username;
+      }
+    } else {
+      navAuth.innerHTML = `
+        <button class="btn btn-ghost btn-sm" onclick="handleLogin('github')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+          </svg>
+          GitHub
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="handleLogin('google')">Sign in</button>
+      `;
+      mobileAuth.innerHTML = `
+        <button onclick="handleLogin('github')">Login with GitHub</button>
+        <button onclick="handleLogin('google')">Login with Google</button>
+      `;
+    }
+  }
+
+  /* ── AUTH ACTIONS ── */
+  function handleLogin(provider) {
+    if (provider === 'github') window.location.href = `${API_URL}/auth/login`;
+    else alert('Google auth is not configured on this backend yet.');
+  }
+
+  function handleLogout() {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('auth_user');
+    renderNav();
+    showToast('Logged out successfully');
+  }
+
+  /* ── STEP SWITCHER ── */
+  function setStep(n) {
+    document.querySelectorAll('.step').forEach((s,i) => s.classList.toggle('active', i === n));
+    document.querySelectorAll('.visual-pane').forEach((p,i) => p.classList.toggle('active', i === n));
+  }
+  // auto-cycle
+  let stepIdx = 0;
+  setInterval(() => { stepIdx = (stepIdx + 1) % 4; setStep(stepIdx); }, 3200);
+
+  /* ── MOBILE NAV ── */
+  document.getElementById('hamburgerBtn').addEventListener('click', () => {
+    document.getElementById('mobileNav').classList.add('open');
+  });
+  document.getElementById('drawerClose').addEventListener('click', closeMobileNav);
+  document.getElementById('mobileNav').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeMobileNav();
+  });
+  function closeMobileNav() { document.getElementById('mobileNav').classList.remove('open'); }
+
+  /* ── TOAST ── */
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  /* ── SCROLL REVEAL ── */
+  const observer = new IntersectionObserver(
+    (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+    { threshold: 0.12 }
+  );
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  /* ── CALLBACK HANDLING (if redirected here with token) ── */
+  (function() {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    if (token) {
+      localStorage.setItem('access_token', token);
+      const userId   = params.get('user_id');
+      const username = params.get('username');
+      localStorage.setItem('auth_user', JSON.stringify({
+        id: parseInt(userId || '0'),
+        github_username: username || '',
+        portfolio_username: username || '',
+      }));
+      window.history.replaceState({}, '', './landing_before_login.html');
+      showToast('Welcome back! Redirecting to dashboard…');
+      setTimeout(() => { window.location.href = './landing_after_login.html'; }, 1200);
+    }
+    const errParam = params.get('error');
+    if (errParam) showToast('Login failed: ' + decodeURIComponent(errParam));
+  })();
+
+  /* ── INIT ── */
+  renderNav();
+</script>
+</body>
+</html>

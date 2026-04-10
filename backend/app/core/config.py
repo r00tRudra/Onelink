@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     GITHUB_OAUTH_REDIRECT_URI: str = "http://localhost:8000/auth/callback"
 
     # App
+    FRONTEND_CALLBACK_URL: str = "http://localhost:3000/login.html"
     SECRET_KEY: str = "your-very-secure-random-secret-key-change-me"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days

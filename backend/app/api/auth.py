@@ -110,9 +110,13 @@ async def github_callback(
         expires_delta=access_token_expires
     )
     
-    # Redirect to frontend with token in URL
-    frontend_url = "http://localhost:3000"
-    redirect_url = f"{frontend_url}/auth/callback?token={jwt_token}&user_id={user.id}&username={user.portfolio_username}"
+    # Redirect to frontend callback page with token in URL
+    callback_url = settings.FRONTEND_CALLBACK_URL
+    separator = "&" if "?" in callback_url else "?"
+    redirect_url = (
+        f"{callback_url}{separator}token={jwt_token}"
+        f"&user_id={user.id}&username={user.portfolio_username}"
+    )
     return RedirectResponse(url=redirect_url)
 
 
