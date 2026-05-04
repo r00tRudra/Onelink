@@ -1,0 +1,75 @@
+/* ─────────────────────────────────────────
+   DESIGN TOKENS & CSS VARIABLES
+   ───────────────────────────────────────── */
+
+:root {
+  /* Colors */
+  --bg:        #0c0c0e;
+  --surface:   #131316;
+  --surface2:  #1a1a1f;
+  --surface3:  #202028;
+  --border:    rgba(255,255,255,0.07);
+  --border2:   rgba(255,255,255,0.12);
+  --border3:   rgba(255,255,255,0.13);
+  --text:      #f0ede8;
+  --muted:     #7a7880;
+  --muted2:    #484555;
+  --muted3:    #555260;
+  
+  /* Semantic Colors */
+  --accent:     #c8f04d;
+  --accent-d:   rgba(200,240,77,0.10);
+  --accent-m:   rgba(200,240,77,0.22);
+  --accent-dim: rgba(200,240,77,0.12);
+  
+  --blue:       #6c8eff;
+  --blue-dim:   rgba(108,142,255,0.08);
+  --blue-mid:   rgba(108,142,255,0.2);
+  
+  --red:        #f87171;
+  --red-dim:    rgba(248,113,113,0.08);
+  --red-mid:    rgba(248,113,113,0.2);
+  
+  --green:      #4ade80;
+  --green-dim:  rgba(74,222,128,0.10);
+  --green-mid:  rgba(74,222,128,0.2);
+  
+  --orange:     #fb923c;
+  --orange-dim: rgba(251,146,60,0.10);
+  --orange-mid: rgba(251,146,60,0.2);
+  
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 20px;
+  --space-2xl: 24px;
+  --space-3xl: 28px;
+  --space-4xl: 32px;
+  --space-5xl: 40px;
+  --space-6xl: 48px;
+  --space-8xl: 64px;
+  --space-10xl: 80px;
+  --space-12xl: 100px;
+  
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius: 12px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 22px;
+  --radius-pill: 99px;
+  
+  /* Layout */
+  --sidebar-width: 240px;
+  --max-width: 1120px;
+  --container-px: 24px;
+  
+  /* Typography */
+  --font-family: 'DM Sans', sans-serif;
+  --font-serif: 'Instrument Serif', serif;
+}
+
+/* Font imports */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');

@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OneLink — Portfolio from GitHub</title>
+
+  <!-- ── SHARED STYLES ── -->
+  <link rel="stylesheet" href="../shared/tokens.css" />
+  <link rel="stylesheet" href="../shared/reset.css" />
+  <link rel="stylesheet" href="../shared/components.css" />
+  <link rel="stylesheet" href="../shared/utilities.css" />
+  <link rel="stylesheet" href="../shared/responsive.css" />
+
+  <!-- ── PAGE-SPECIFIC STYLES ── -->
+  <style>
+    /* ────────────────────────────────────
+       PAGE LAYOUT & HEADER
+       ──────────────────────────────────── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(12,12,14,0.82);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 var(--container-px);
+    }
+
+    .nav-logo {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-logo em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 14px;
+      color: var(--muted);
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius-sm);
+      transition: color 0.15s, background 0.15s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .nav-auth {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      padding: var(--space-sm);
+    }
+
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: all 0.25s;
+    }
+
+    /* ────────────────────────────────────
+       BACKGROUND
+       ──────────────────────────────────── */
+    .bg-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bg-canvas::before {
+      content: '';
+      position: absolute;
+      width: 800px;
+      height: 800px;
+      top: -300px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: radial-gradient(circle, rgba(200,240,77,0.08) 0%, transparent 65%);
+      animation: glow 8s ease-in-out infinite alternate;
+    }
+
+    .bg-canvas::after {
+      content: '';
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      bottom: 0;
+      right: -100px;
+      background: radial-gradient(circle, rgba(100,140,255,0.05) 0%, transparent 70%);
+    }
+
+    @keyframes glow {
+      from { opacity: 0.6; }
+      to { opacity: 1; }
+    }
+
+    /* ────────────────────────────────────
+       HERO SECTION
+       ──────────────────────────────────── */
+    .hero {
+      padding:
+ 100px 0 80px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(48px, 8vw, 84px);
+      line-height: 1.02;
+      letter-spacing: -0.03em;
+      margin-bottom: var(--space-2xl);
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .hero p {
+      font-size: clamp(16px, 2.2vw, 20px);
+      color: var(--muted);
+      max-width: 520px;
+      margin: 0 auto var(--space-xl);
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: var(--space-md);
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: var(--space-10xl);
+    }
+
+    .profile-strip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      margin-top: var(--space-8xl);
+    }
+
+    .strip-avatars {
+      display: flex;
+    }
+
+    .strip-avatars .av {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 2px solid var(--bg);
+      background: linear-gradient(135deg, #2a2a38, #3a3a50);
+      margin-left: -10px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+    }
+
+    .strip-avatars .av:first-child {
+      margin-left: 0;
+    }
+
+    .strip-text {
+      margin-left: var(--space-lg);
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .strip-text strong {
+      color: var(--text);
+    }
+
+    /* ────────────────────────────────────
+       PREVIEW SECTION
+       ──────────────────────────────────── */
+    .preview-frame {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 40px 120px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+      margin: 0 auto var(--space-12xl);
+      max-width: 860px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .frame-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-md) var(--space-lg);
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+    }
+
+    .frame-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .d-red { background: #ff5f57; }
+    .d-yellow { background: #febc2e; }
+    .d-green { background: #28c840; }
+
+    .frame-url {
+      flex: 1;
+      margin: 0 var(--space-md);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: var(--space-xs) var(--space-md);
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .frame-body {
+      padding: var(--space-4xl);
+    }
+
+    /* Portfolio mock */
+    .mock-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-lg);
+      margin-bottom: var(--space-3xl);
+    }
+
+    .mock-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2a3a5a, #3a5a8a);
+      flex-shrink: 0;
+    }
+
+    .mock-name {
+      font-family: var(--font-serif);
+      font-size: 22px;
+    }
+
+    .mock-handle {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .mock-bio {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: var(--space-xs);
+    }
+
+    .mock-stats {
+      display: flex;
+      gap: var(--space-3xl);
+      margin-bottom: var(--space-2xl);
+    }
+
+    .mock-stat label {
+      display: block;
+      font-size: 11px;
+      color: var(--muted2);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: var(--space-xs);
+    }
+
+    .mock-stat span {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .mock-repos {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-sm);
+    }
+
+    .mock-repo {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+    }
+
+    .mock-repo-name {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: var(--space-xs);
+      color: var(--accent);
+    }
+
+    .mock-repo-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .mock-repo-lang {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      margin-top: var(--space-md);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .lang-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    /* ────────────────────────────────────
+       SECTIONS
+       ──────────────────────────────────── */
+    section {
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: var(--space-lg);
+    }
+
+    .section-title {
+      font-family: var(--font-serif);
+      font-size: clamp(32px, 5vw, 52px);
+      line-height: 1.05;
+      letter-spacing: -0.025em;
+      margin-bottom: var(--space-lg);
+    }
+
+    .section-title em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .section-sub {
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 480px;
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    /* ────────────────────────────────────
+       FEATURES GRID
+       ──────────────────────────────────── */
+    .features {
+      padding: var(--space-10xl) 0;
+    }
+
+    .features-header {
+      text-align: center;
+      margin-bottom: var(--space-8xl);
+    }
+
+    .feat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-lg);
+    }
+
+    .feat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-4xl);
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+
+    .feat-card:hover {
+      border-color: var(--border2);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    }
+
+    .feat-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius);
+      background: var(--accent-dim);
+      border: 1px solid var(--accent-mid);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: var(--space-lg);
+    }
+
+    .feat-card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: var(--space-sm);
+    }
+
+    .feat-card p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ────────────────────────────────────
+       CTA & FOOTER
+       ──────────────────────────────────── */
+    .cta-section {
+      padding: var(--space-12xl) 0;
+    }
+
+    .cta-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-2xl);
+      padding: var(--space-12xl);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 50% -10%, rgba(200,240,77,0.09), transparent 70%);
+      pointer-events: none;
+    }
+
+    .cta-card h2 {
+      font-family: var(--font-serif);
+      font-size: clamp(32px, 5vw, 54px);
+      letter-spacing: -0.025em;
+      margin-bottom: var(--space-lg);
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-card h2 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .cta-card p {
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 440px;
+      margin: 0 auto var(--space-5xl);
+      line-height: 1.6;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-btns {
+      display: flex;
+      gap: var(--space-md);
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: var(--space-xl) 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 var(--container-px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3xl);
+      flex-wrap: wrap;
+    }
+
+    .footer-logo {
+      font-family: var(--font-serif);
+      font-size: 18px;
+    }
+
+    .footer-logo em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: var(--space-xl);
+    }
+
+    .footer-links a {
+      font-size: 13px;
+      color: var(--muted);
+      transition: color 0.15s;
+    }
+
+    .footer-links a:hover {
+      color: var(--text);
+    }
+
+    .footer-copy {
+      font-size: 12px;
+      color: var(--muted2);
+    }
+
+    /* ────────────────────────────────────
+       MOBILE NAV DRAWER
+       ──────────────────────────────────── */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(6px);
+    }
+
+    .mobile-nav.open {
+      display: flex;
+    }
+
+    .mobile-drawer {
+      background: var(--surface);
+      width: 280px;
+      height: 100%;
+      border-right: 1px solid var(--border);
+      padding: var(--space-3xl);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      animation: slideIn 0.25s ease;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(-100%); }
+      to { transform: none; }
+    }
+
+    .mobile-drawer a,
+    .mobile-drawer button {
+      display: block;
+      padding: var(--space-lg);
+      border-radius: var(--radius);
+      font-size: 15px;
+      color: var(--text);
+      background: none;
+      border: none;
+      text-align: left;
+      width: 100%;
+      transition: background 0.15s;
+    }
+
+    .mobile-drawer a:hover,
+    .mobile-drawer button:hover {
+      background: rgba(255,255,255,0.05);
+    }
+
+    .drawer-close {
+      align-self: flex-end;
+      margin-bottom: var(--space-lg);
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .feat-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .mock-repos {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .nav-links, .nav-auth {
+        display: none;
+      }
+
+      .hamburger {
+        display: flex;
+      }
+
+      .feat-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .cta-card {
+        padding: var(--space-xl) var(--space-lg);
+      }
+
+      .footer-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .hero {
+        padding: 60px 0 48px;
+      }
+
+      .hero-cta {
+        flex-direction: column-reverse;
+      }
+
+      .hero-cta .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background -->
+  <div class="bg-canvas"></div>
+
+  <!-- Header -->
+  <header>
+    <nav>
+      <a href="/" class="nav-logo">One<em>Link</em></a>
+
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#how">How it works</a></li>
+      </ul>
+
+      <div class="nav-auth" id="navAuth">
+        <!-- Injected by JS -->
+      </div>
+
+      <button class="hamburger" id="hamburgerBtn" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- Mobile drawer -->
+  <div class="mobile-nav" id="mobileNav">
+    <div class="mobile-drawer">
+      <button class="drawer-close" id="drawerClose">✕</button>
+      <a href="#features" onclick="closeMobileNav()">Features</a>
+      <hr style="border-color: var(--border); margin: 8px 0" />
+      <div id="mobileAuthLinks"></div>
+    </div>
+  </div>
+
+  <!-- Hero section -->
+  <section class="hero">
+    <div class="container">
+      <div class="badge mb-2xl reveal">
+        <span class="badge-dot"></span>
+        Now in Beta · Free
+      </div>
+      <h1 class="reveal reveal-delay-1">Your portfolio,<br/><em>built from code.</em></h1>
+      <p class="reveal reveal-delay-2">Connect GitHub once. Get a stunning, shareable portfolio that updates automatically with every push.</p>
+
+      <div class="hero-cta reveal reveal-delay-3">
+        <button class="btn btn-primary btn-lg" onclick="handleLogin('github')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+          </svg>
+          Start with GitHub
+        </button>
+        <a href="#features" class="btn btn-outline btn-lg">See features</a>
+      </div>
+
+      <div class="profile-strip reveal reveal-delay-4">
+        <div class="strip-avatars">
+          <div class="av">JD</div>
+          <div class="av">AK</div>
+          <div class="av">MR</div>
+          <div class="av">+</div>
+        </div>
+        <div class="strip-text">Joined by <strong>1,200+ developers</strong> this month</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Preview -->
+  <div class="preview-frame reveal container">
+    <div class="frame-bar">
+      <div class="frame-dot d-red"></div>
+      <div class="frame-dot d-yellow"></div>
+      <div class="frame-dot d-green"></div>
+      <div class="frame-url">onelink.dev/<strong id="previewUsername">yourname</strong></div>
+    </div>
+    <div class="frame-body">
+      <div class="mock-header">
+        <div class="mock-avatar"></div>
+        <div>
+          <div class="mock-name" id="mockName">Your Name</div>
+          <div class="mock-handle" id="mockHandle">@yourname · Full-Stack Developer</div>
+          <div class="mock-bio">Building cool things with code 🚀</div>
+        </div>
+      </div>
+      <div class="mock-stats">
+        <div class="mock-stat"><label>Repos</label><span>42</span></div>
+        <div class="mock-stat"><label>Stars</label><span>1.2k</span></div>
+        <div class="mock-stat"><label>Followers</label><span>340</span></div>
+        <div class="mock-stat"><label>Years</label><span>5</span></div>
+      </div>
+      <div class="mock-repos">
+        <div class="mock-repo">
+          <div class="mock-repo-name">awesome-api</div>
+          <div class="mock-repo-desc">A fast REST API built with FastAPI</div>
+          <div class="mock-repo-lang"><span class="lang-dot" style="background:#3572A5"></span>Python · ★ 312</div>
+        </div>
+        <div class="mock-repo">
+          <div class="mock-repo-name">portfolio-v3</div>
+          <div class="mock-repo-desc">Personal site built with Next.js</div>
+          <div class="mock-repo-lang"><span class="lang-dot" style="background:#f1e05a"></span>TypeScript · ★ 89</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features section -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="features-header">
+        <div class="section-label reveal">Everything you need</div>
+        <h2 class="section-title reveal reveal-delay-1">Your GitHub,<br/><em>beautifully presented</em></h2>
+        <p class="section-sub reveal reveal-delay-2">No design skills needed. OneLink automatically generates a portfolio that looks like it took weeks to build.</p>
+      </div>
+
+      <div class="feat-grid">
+        <div class="feat-card reveal">
+          <div class="feat-icon">🔗</div>
+          <h3>One-click connect</h3>
+          <p>Sign in with GitHub and your portfolio is live in seconds. No config needed.</p>
+        </div>
+        <div class="feat-card reveal reveal-delay-1">
+          <div class="feat-icon">🔄</div>
+          <h3>Auto-sync repos</h3>
+          <p>Push code and your portfolio updates automatically. Always fresh.</p>
+        </div>
+        <div class="feat-card reveal reveal-delay-2">
+          <div class="feat-icon">🎨</div>
+          <h3>Beautiful design</h3>
+          <p>A clean, professional layout that makes your projects shine.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA section -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-card reveal">
+        <div class="badge mb-lg" style="justify-content: center; margin-bottom: var(--space-lg);">
+          <span class="badge-dot"></span>Free · No credit card
+        </div>
+        <h2>Ready to build your<br/><em>portfolio?</em></h2>
+        <p>Join thousands of developers who already have their perfect portfolio live on OneLink.</p>
+        <div class="cta-btns">
+          <button class="btn btn-primary btn-lg" onclick="handleLogin('github')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+            </svg>
+            Get started — it's free
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-logo">One<em>Link</em></span>
+      <div class="footer-links">
+        <a href="#features">Features</a>
+        <a href="./auth/sign-in.html">Login</a>
+        <a href="#">Privacy</a>
+      </div>
+      <span class="footer-copy">© 2024 OneLink. Built with ❤️</span>
+    </div>
+  </footer>
+
+  <!-- Shared utility scripts -->
+  <script src="../shared/utils.js"></script>
+
+  <!-- Page-specific scripts -->
+  <script>
+    // Handle login
+    function handleLogin(provider) {
+      if (provider === 'github') {
+        window.location.href = `${API_URL}/auth/login`;
+      } else {
+        UI.showToast('Google auth is not configured yet');
+      }
+    }
+
+    // Mobile nav
+    DOM.on(DOM.byId('hamburgerBtn'), 'click', () => {
+      DOM.byId('mobileNav').classList.add('open');
+    });
+    DOM.on(DOM.byId('drawerClose'), 'click', closeMobileNav);
+    DOM.on(DOM.byId('mobileNav'), 'click', (e) => {
+      if (e.target === e.currentTarget) closeMobileNav();
+    });
+
+    function closeMobileNav() {
+      DOM.byId('mobileNav').classList.remove('open');
+    }
+
+    // Render nav based on auth state
+    function renderNav() {
+      const navAuth = DOM.byId('navAuth');
+      const mobileAuth = DOM.byId('mobileAuthLinks');
+      const user = Auth.getUser();
+      const isAuth = Auth.isAuthenticated();
+
+      if (isAuth && user) {
+        navAuth.innerHTML = `
+          <a href="./dashboard.html" class="avatar-chip">
+            <span>${user.portfolio_username || user.github_username}</span>
+          </a>
+          <button class="btn btn-ghost btn-sm" onclick="handleLogout()">Logout</button>
+        `;
+        mobileAuth.innerHTML = `
+          <a href="./dashboard.html">Dashboard</a>
+          <button onclick="handleLogout()">Logout</button>
+        `;
+      } else {
+        navAuth.innerHTML = `
+          <button class="btn btn-ghost btn-sm" onclick="handleLogin('github')">GitHub</button>
+          <button class="btn btn-primary btn-sm" onclick="handleLogin('github')">Sign in</button>
+        `;
+        mobileAuth.innerHTML = `
+          <button onclick="handleLogin('github')">Login with GitHub</button>
+        `;
+      }
+    }
+
+    function handleLogout() {
+      Auth.logout();
+    }
+
+    // Init reveal animations
+    window.addEventListener('load', () => {
+      Observer.initReveal();
+      renderNav();
+    });
+  </script>
+</body>
+</html>

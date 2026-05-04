@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — OneLink</title>
+
+  <!-- ── SHARED STYLES ── -->
+  <link rel="stylesheet" href="../shared/tokens.css" />
+  <link rel="stylesheet" href="../shared/reset.css" />
+  <link rel="stylesheet" href="../shared/components.css" />
+  <link rel="stylesheet" href="../shared/utilities.css" />
+  <link rel="stylesheet" href="../shared/responsive.css" />
+
+  <!-- ── PAGE-SPECIFIC STYLES ── -->
+  <style>
+    /* ────────────────────────────────────
+       LAYOUT
+       ──────────────────────────────────── */
+    body {
+      display: flex;
+    }
+
+    /* ────────────────────────────────────
+       SIDEBAR
+       ──────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-width);
+      min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 50;
+      transition: transform 0.25s ease;
+    }
+
+    .sidebar-logo {
+      padding: var(--space-2xl) var(--space-lg) var(--space-lg);
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-serif);
+      font-size: 20px;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-logo em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: var(--space-md) var(--space-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow-y: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-md);
+      border-radius: var(--radius);
+      font-size: 14px;
+      color: var(--muted);
+      transition: all 0.15s;
+      cursor: pointer;
+      background: none;
+      border: none;
+      text-align: left;
+      width: 100%;
+    }
+
+    .nav-item:hover {
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+    }
+
+    .nav-item.active {
+      background: var(--accent-dim);
+      color: var(--accent);
+    }
+
+    .nav-item .icon {
+      width: 18px;
+      text-align: center;
+      font-size: 15px;
+    }
+
+    .nav-section-label {
+      font-size: 10px;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--muted3);
+      padding: var(--space-lg) var(--space-md) var(--space-sm);
+      font-weight: 600;
+    }
+
+    .sidebar-footer {
+      padding: var(--space-lg) var(--space-sm);
+      border-top: 1px solid var(--border);
+    }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-md);
+      border-radius: var(--radius);
+      transition: background 0.15s;
+      cursor: pointer;
+    }
+
+    .user-chip:hover {
+      background: rgba(255,255,255,0.05);
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #2a3a5a, #3a5a8a);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .user-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .user-info {
+      min-width: 0;
+    }
+
+    .user-name {
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-role {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* ────────────────────────────────────
+       MAIN CONTENT
+       ──────────────────────────────────── */
+    .main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ────────────────────────────────────
+       TOP BAR
+       ──────────────────────────────────── */
+    .topbar {
+      height: 58px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--space-3xl);
+      background: rgba(12,12,14,0.7);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .breadcrumb {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .breadcrumb strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .ham-btn {
+      display: none;
+      background: none;
+      border: none;
+      padding: var(--space-sm);
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .ham-btn span {
+      display: block;
+      width: 18px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+    }
+
+    /* ────────────────────────────────────
+       CONTENT
+       ──────────────────────────────────── */
+    .content {
+      padding: var(--space-4xl);
+      flex: 1;
+    }
+
+    /* ────────────────────────────────────
+       PAGE STRUCTURE
+       ──────────────────────────────────── */
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .page-header {
+      margin-bottom: var(--space-3xl);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--space-lg);
+      flex-wrap: wrap;
+    }
+
+    .page-title {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      letter-spacing: -0.02em;
+    }
+
+    .page-title em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .page-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: var(--space-xs);
+    }
+
+    /* ────────────────────────────────────
+       STAT CARDS
+       ──────────────────────────────────── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-lg);
+      margin-bottom: var(--space-3xl);
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-xl) var(--space-2xl);
+      transition: border-color 0.2s;
+    }
+
+    .stat-card:hover {
+      border-color: var(--border2);
+    }
+
+    .stat-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-md);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .stat-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+    }
+
+    .stat-val {
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .stat-delta {
+      font-size: 12px;
+      color: var(--green);
+      margin-top: var(--space-xs);
+    }
+
+    /* ────────────────────────────────────
+       REPO LIST
+       ──────────────────────────────────── */
+    .repo-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .repo-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-md) var(--space-xl);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+      cursor: pointer;
+    }
+
+    .repo-item:last-child {
+      border-bottom: none;
+    }
+
+    .repo-item:hover {
+      background: rgba(255,255,255,0.02);
+    }
+
+    .repo-item-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      min-width: 0;
+    }
+
+    .repo-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .repo-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .repo-desc {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .repo-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      flex-shrink: 0;
+    }
+
+    .repo-star {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .lang-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    /* ────────────────────────────────────
+       SIDEBAR OVERLAY MOBILE
+       ──────────────────────────────────── */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 49;
+      background: rgba(0,0,0,0.5);
+    }
+
+    /* ────────────────────────────────────
+       RESPONSIVE
+       ──────────────────────────────────── */
+    @media (max-width: 1100px) {
+      .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 860px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: none;
+      }
+
+      .sidebar-overlay {
+        display: none;
+      }
+
+      .sidebar-overlay.open {
+        display: block;
+      }
+
+      .main {
+        margin-left: 0;
+      }
+
+      .ham-btn {
+        display: flex;
+      }
+
+      .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .content {
+        padding: var(--space-lg);
+      }
+    }
+
+    @media (max-width: 420px) {
+      .stats-row {
+        grid-template-columns: 1fr;
+      }
+
+      .page-header {
+        flex-direction: column;
+      }
+
+      .topbar {
+        padding: 0 var(--space-lg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">One<em>Link</em></div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" onclick="setPage('dashboard', this)">
+        <span class="icon">⬛</span>Dashboard
+      </button>
+      <button class="nav-item" onclick="setPage('repos', this)">
+        <span class="icon">📦</span>Repositories
+      </button>
+      <button class="nav-item" onclick="setPage('portfolio', this)">
+        <span class="icon">🎨</span>Portfolio
+      </button>
+
+      <div class="nav-section-label">Profile</div>
+      <button class="nav-item" onclick="setPage('resume', this)">
+        <span class="icon">📄</span>Resume
+      </button>
+      <button class="nav-item" onclick="setPage('experience', this)">
+        <span class="icon">💼</span>Experience
+      </button>
+      <button class="nav-item" onclick="setPage('skills', this)">
+        <span class="icon">⚡</span>Skills
+      </button>
+      <button class="nav-item" onclick="setPage('education', this)">
+        <span class="icon">🎓</span>Education
+      </button>
+
+      <div class="nav-section-label">Account</div>
+      <button class="nav-item" onclick="setPage('settings', this)">
+        <span class="icon">⚙️</span>Settings
+      </button>
+      <button class="nav-item" onclick="handleLogout()">
+        <span class="icon">🚪</span>Logout
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-chip" onclick="setPage('settings', null)">
+        <div class="user-avatar" id="sidebarAvatar">?</div>
+        <div class="user-info">
+          <div class="user-name" id="sidebarName">Loading…</div>
+          <div class="user-role">Developer</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Top bar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="ham-btn" id="hamBtn" onclick="openSidebar()">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="breadcrumb">OneLink / <strong id="pageTitle">Dashboard</strong></div>
+      </div>
+      <div class="topbar-right">
+        <span class="pill pill-green"><span class="pill-dot"></span>Live</span>
+        <button class="btn btn-primary btn-sm" onclick="copyPortfolioLink()">
+          Share portfolio
+        </button>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Dashboard page -->
+      <div id="page-dashboard" class="page active">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Good to see you, <em id="heroName">there</em> 👋</div>
+            <div class="page-sub">Here's what's happening with your portfolio today.</div>
+          </div>
+          <button class="btn btn-ghost" onclick="syncRepos()">↻ Sync GitHub</button>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-label">Repositories</span>
+              <div class="stat-icon" style="background: var(--accent-d)">📦</div>
+            </div>
+            <div class="stat-val">42</div>
+            <div class="stat-delta">↑ 3 this month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-label">Total Stars</span>
+              <div class="stat-icon" style="background: var(--orange-dim)">⭐</div>
+            </div>
+            <div class="stat-val">1.2k</div>
+            <div class="stat-delta" style="color: var(--orange)">↑ 84 new stars</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-label">Portfolio Views</span>
+              <div class="stat-icon" style="background: var(--blue-dim)">👁</div>
+            </div>
+            <div class="stat-val">348</div>
+            <div class="stat-delta" style="color: var(--blue)">↑ 12% this week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-label">Followers</span>
+              <div class="stat-icon" style="background: var(--green-dim)">👥</div>
+            </div>
+            <div class="stat-val">340</div>
+            <div class="stat-delta">↑ 8 new followers</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Recent Repositories</span>
+              <button class="btn btn-ghost btn-sm" onclick="setPage('repos', null)">View all</button>
+            </div>
+            <div class="repo-list">
+              <div class="repo-item">
+                <div class="repo-item-left">
+                  <span class="repo-icon">📁</span>
+                  <div>
+                    <div class="repo-name">awesome-api</div>
+                    <div class="repo-desc">FastAPI + PostgreSQL REST API</div>
+                  </div>
+                </div>
+                <div class="repo-meta">
+                  <span class="lang-dot" style="background: #3572A5"></span>
+                  <span class="repo-star">⭐ 312</span>
+                </div>
+              </div>
+              <div class="repo-item">
+                <div class="repo-item-left">
+                  <span class="repo-icon">📁</span>
+                  <div>
+                    <div class="repo-name">portfolio-v3</div>
+                    <div class="repo-desc">Next.js personal site</div>
+                  </div>
+                </div>
+                <div class="repo-meta">
+                  <span class="lang-dot" style="background: #f1e05a"></span>
+                  <span class="repo-star">⭐ 89</span>
+                </div>
+              </div>
+              <div class="repo-item">
+                <div class="repo-item-left">
+                  <span class="repo-icon">📁</span>
+                  <div>
+                    <div class="repo-name">ml-experiments</div>
+                    <div class="repo-desc">Jupyter ML research notebooks</div>
+                  </div>
+                </div>
+                <div class="repo-meta">
+                  <span class="lang-dot" style="background: #e34c26"></span>
+                  <span class="repo-star">⭐ 156</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Your portfolio link</span>
+            </div>
+            <div class="card-body">
+              <div style="display: flex; align-items: center; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; margin-bottom: var(--space-md)">
+                <span style="padding: var(--space-md) var(--space-lg); font-size: 13px; color: var(--muted); border-right: 1px solid var(--border); white-space: nowrap;">onelink.dev/</span>
+                <input style="flex: 1; padding: var(--space-md); background: none; border: none; outline: none; font-family: var(--font-family); font-size: 13px; color: var(--accent);" id="urlInput" value="yourname" readonly />
+                <button style="padding: var(--space-md) var(--space-lg); background: none; border-left: 1px solid var(--border); color: var(--muted); cursor: pointer; font-size: 13px;" onclick="copyPortfolioLink()">Copy</button>
+              </div>
+              <div style="display: flex; gap: var(--space-sm)">
+                <button class="btn btn-ghost btn-sm" style="flex: 1" onclick="openPortfolio()">🔗 Open</button>
+                <button class="btn btn-primary btn-sm" style="flex: 1" onclick="copyPortfolioLink()">Copy link</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Repos page -->
+      <div id="page-repos" class="page" style="display: none">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Repositories</div>
+            <div class="page-sub">42 repos synced from GitHub</div>
+          </div>
+          <button class="btn btn-primary" onclick="syncRepos()">↻ Sync now</button>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            Repository management coming soon...
+          </div>
+        </div>
+      </div>
+
+      <!-- Portfolio page -->
+      <div id="page-portfolio" class="page" style="display: none">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Portfolio <em>Preview</em></div>
+            <div class="page-sub">This is how your portfolio looks to the world.</div>
+          </div>
+          <button class="btn btn-primary" onclick="openPortfolio()">🔗 Open live</button>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            Portfolio preview coming soon...
+          </div>
+        </div>
+      </div>
+
+      <!-- Resume page -->
+      <div id="page-resume" class="page" style="display: none">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Resume <em>Import</em></div>
+            <div class="page-sub">Upload your PDF resume — we'll extract and auto-fill your profile.</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            Resume import coming soon...
+          </div>
+        </div>
+      </div>
+
+      <!-- Experience page -->
+      <div id="page-experience" class="page" style="display: none">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Experience</div>
+            <div class="page-sub">Add your work history to your portfolio.</div>
+          </div>
+          <button class="btn btn-primary" onclick="UI.showToast('Coming soon')">+ Add experience</button>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            Experience management coming soon...
+          </div>
+        </div>
+      </div>
+
+      <!-- Skills page -->
+      <div id="page-skills" class="page" style="display: none">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Skills</div>
+            <div class="page-sub">Showcase your technical expertise.</div>
+          </div>
+          <button class="btn btn-primary" onclick="UI.showToast('Coming soon')">+ Add skill</button>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            Skills management coming soon...
+          </div>
+        </div>
+      </div>
+
+      <!-- Education page -->
+      <div id="page-education" class="page" style="display: none">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Education</div>
+            <div class="page-sub">Add your academic background.</div>
+          </div>
+          <button class="btn btn-primary" onclick="UI.showToast('Coming soon')">+ Add education</button>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            Education management coming soon...
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings page -->
+      <div id="page-settings" class="page" style="display: none">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Settings</div>
+            <div class="page-sub">Manage your account and preferences.</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            Settings coming soon...
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast">
+    <span class="toast-icon">✓</span>
+    <span id="toastMsg"></span>
+  </div>
+
+  <!-- Shared utilities -->
+  <script src="../shared/utils.js"></script>
+
+  <!-- Page-specific scripts -->
+  <script>
+    // Check authentication
+    window.addEventListener('load', () => {
+      if (!Auth.isAuthenticated()) {
+        window.location.href = '../auth/sign-in.html';
+      }
+
+      const user = Auth.getUser();
+      if (user) {
+        document.getElementById('sidebarName').textContent = user.portfolio_username || user.github_username;
+      }
+
+      Observer.initReveal();
+    });
+
+    // Page navigation
+    function setPage(pageName, navItem) {
+      // Hide all pages
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      
+      // Show selected page
+      const page = document.getElementById(`page-${pageName}`);
+      if (page) page.classList.add('active');
+
+      // Update nav active state
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+      if (navItem) navItem.classList.add('active');
+
+      // Update breadcrumb
+      const titles = {
+        dashboard: 'Dashboard',
+        repos: 'Repositories',
+        portfolio: 'Portfolio',
+        resume: 'Resume',
+        experience: 'Experience',
+        skills: 'Skills',
+        education: 'Education',
+        settings: 'Settings'
+      };
+      document.getElementById('pageTitle').textContent = titles[pageName] || 'Dashboard';
+
+      // Close sidebar on mobile
+      closeSidebar();
+    }
+
+    // Sidebar mobile
+    function openSidebar() {
+      document.getElementById('sidebar').classList.add('open');
+      document.getElementById('sidebarOverlay').classList.add('open');
+    }
+
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebarOverlay').classList.remove('open');
+    }
+
+    // Actions
+    function syncRepos() {
+      UI.showToast('Syncing with GitHub...');
+    }
+
+    function copyPortfolioLink() {
+      const url = `onelink.dev/${document.getElementById('urlInput').value}`;
+      navigator.clipboard.writeText(url);
+      UI.showToast('Portfolio link copied!');
+    }
+
+    function openPortfolio() {
+      const username = document.getElementById('urlInput').value;
+      window.open(`http://onelink.dev/${username}`, '_blank');
+    }
+
+    function handleLogout() {
+      if (confirm('Are you sure you want to logout?')) {
+        Auth.logout();
+      }
+    }
+  </script>
+</body>
+</html>
