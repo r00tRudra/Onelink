@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 import logging
 
+from app.core.config import settings
 from app.db.database import engine, get_db
 from app.db.init_db import init_db
 from app.api import auth, users, projects, portfolio, resume
@@ -28,7 +29,7 @@ app = FastAPI(
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure appropriately for production
+    allow_origins=settings.allowed_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

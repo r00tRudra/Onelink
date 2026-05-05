@@ -330,6 +330,7 @@
   </div>
 
   <!-- ── SCRIPTS ── -->
+  <script src="../shared/runtime-config.js"></script>
   <script src="../shared/utils.js"></script>
 
   <script>
@@ -360,28 +361,66 @@
         <div class="error-icon">⚠️</div>
         <div class="error-title">Authentication failed</div>
         <div class="error-sub">${msg}</div>
+        <p style="font-size: 12px; color: #999; margin-top: 15px;">
+          Debug info: ${msg}
+        </p>
         <a href="./sign-in.html" class="back-link">← Back to Login</a>
       `;
+      console.error('[AUTH ERROR]', msg);
     }
 
     // Handle OAuth callback
-    function handleCallback() {
+    async function handleCallback() {
       const token = URL.getParam('token');
       const userId = URL.getParam('user_id');
       const username = URL.getParam('username');
+      const error = URL.getParam('error');
 
-      if (!token) return; // Not a callback page load
+      console.log('[AUTH] Callback received:', { token: token ? 'present' : 'missing', userId, username, error });
+
+      // Handle OAuth error from backend
+      if (error) {
+        showError(decodeURIComponent(error));
+        return;
+      }
+
+      // Not a callback, just a regular sign-in page load
+      if (!token) {
+        console.log('[AUTH] No token in URL, showing regular login page');
+        return;
+      }
 
       showLoading();
 
       try {
+        console.log('[AUTH] Setting token in localStorage...');
         Auth.setToken(token);
-        Auth.setUser({
+        
+        // Seed minimal user data immediately, then hydrate from backend profile.
+        const minimalUser = {
           id: parseInt(userId || '0'),
-          github_username: username || '',
-          portfolio_username: username || '',
-        });
+          github_username: username || 'user',
+          portfolio_username: username || 'user',
+        };
+        
+        console.log('[AUTH] Setting minimal user data:', minimalUser);
+        Auth.setUser(minimalUser);
 
+        try {
+          console.log('[AUTH] Fetching full profile from /users/me...');
+          const profile = await API.get('/users/me');
+          if (profile) {
+            console.log('[AUTH] Profile fetched successfully:', profile.github_username);
+            Auth.setUser(profile);
+          } else {
+            console.warn('[AUTH] Profile API returned null');
+          }
+        } catch (profileErr) {
+          console.warn('[AUTH] Failed to hydrate user profile after login:', profileErr.message);
+          // Continue anyway, we have the token
+        }
+
+        console.log('[AUTH] Redirecting to dashboard...');
         // Redirect after short delay so spinner is visible
         setTimeout(() => {
           window.location.href = '../pages/dashboard.html';
@@ -392,11 +431,13 @@
     }
 
     // Handle error param from backend
-    window.addEventListener('load', () => {
-      handleCallback();
+    window.addEventListener('load', async () => {
+      console.log('[AUTH] Window load event fired');
+      await handleCallback();
       
       const errorParam = URL.getParam('error');
       if (errorParam) {
+        console.error('[AUTH] Error parameter found:', errorParam);
         showError(decodeURIComponent(errorParam));
       }
     });

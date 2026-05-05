@@ -1,0 +1,162 @@
+# OneLink Authentication & Data Loading Guide
+
+## Issue Summary
+The frontend dashboard was showing null/0 values for all profile details because users didn't have a valid JWT token stored in localStorage.
+
+## Root Cause
+The authentication flow requires users to:
+1. Click "Sign in with GitHub" on the landing page
+2. Authorize the GitHub OAuth application
+3. Be redirected back to the callback URL with a token
+4. Have that token stored in localStorage before accessing the dashboard
+
+If any step fails or is incomplete, users end up without a token and get redirected to the sign-in page.
+
+## How It Works (Normal Flow)
+
+```
+Landing Page (index.html)
+    ↓ User clicks "Sign in"
+Sign-in Page (auth/sign-in.html) 
+    ↓ User clicks "GitHub" button
+Backend Auth Endpoint (http://localhost:8000/auth/login)
+    ↓ Redirects to GitHub OAuth
+GitHub OAuth Consent Screen
+    ↓ User authorizes
+GitHub Callback to Backend (http://localhost:8000/auth/callback?code=...&state=...)
+    ↓ Backend validates code, creates JWT token, creates/updates user in database
+Redirect to Frontend (http://localhost:3000/auth/sign-in.html?token=...&user_id=...&username=...)
+    ↓ Frontend extracts token from URL
+Store in localStorage + Fetch user profile
+    ↓ Redirect to dashboard with token in localStorage
+Dashboard (pages/dashboard.html)
+    ↓ Load with authenticated API calls
+Display user data and projects
+```
+
+## Testing the Application
+
+### Option 1: Using the Test Login Page (Quick Testing)
+The fastest way to test is to bypass GitHub OAuth:
+
+1. Start both servers:
+   ```bash
+   # Terminal 1: Backend
+   cd c:\backend\fastapi\Onelink\backend
+   python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+   # Terminal 2: Frontend
+   cd c:\backend\fastapi\Onelink\FRONTEND
+   python -m http.server 3000
+   ```
+
+2. Open http://localhost:3000/test-login.html in your browser
+
+3. Click "Login & Test Dashboard" button
+
+4. Dashboard should load with real data from the database
+
+### Option 2: Full OAuth Flow (Production Testing)
+1. Go to http://localhost:3000 (landing page)
+2. Click "Sign in" button
+3. Click "Start with GitHub" or the GitHub button in the sign-in form
+4. You'll be redirected to GitHub to authorize the application
+5. After authorization, you'll be redirected back to the sign-in page with a token in the URL
+6. The token will be extracted and stored in localStorage
+7. You'll be redirected to the dashboard
+
+### Debugging the Authentication Flow
+
+#### Check if Token is in localStorage
+Open browser DevTools Console and run:
+```javascript
+localStorage.getItem('access_token')
+```
+
+Should return a JWT token starting with `eyJ...`
+
+#### Check if User Data is in localStorage
+```javascript
+JSON.parse(localStorage.getItem('auth_user'))
+```
+
+Should return the user object with fields like `github_username`, `portfolio_username`, `email`, etc.
+
+#### Check Browser Console for Errors
+Open browser DevTools → Console tab and look for messages prefixed with:
+- `[DEBUG]` - Shows API calls and responses
+- `[ERROR]` - Shows errors
+- `[AUTH]` - Shows authentication flow details
+
+#### Test API Endpoints Directly
+From browser DevTools Console:
+```javascript
+// Get user profile
+fetch('http://localhost:8000/users/me', {
+  headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
+}).then(r => r.json()).then(console.log)
+
+// Get projects
+fetch('http://localhost:8000/projects', {
+  headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
+}).then(r => r.json()).then(console.log)
+```
+
+## Common Issues and Solutions
+
+### Issue: Dashboard shows "Error" with loading spinner
+**Cause**: Token is missing or invalid
+**Solution**: 
+- Check localStorage for access_token
+- Try logging out and logging back in through GitHub OAuth
+- Or use test-login.html for quick testing
+
+### Issue: API calls return 401 Unauthorized
+**Cause**: Token is expired or invalid
+**Solution**:
+- Clear localStorage and log in again
+- Check that the SECRET_KEY in .env matches what the backend is using
+- Check that the token wasn't modified
+
+### Issue: Projects show as "0" repos
+**Cause**: Either no projects synced or API call failed
+**Solution**:
+- Click "Sync GitHub" button on the dashboard
+- Check browser console for API errors
+- Verify the user has GitHub repositories
+- Check that the GitHub access token is still valid
+
+### Issue: Profile shows "Loading..." and doesn't update
+**Cause**: API call is still in progress or failed
+**Solution**:
+- Wait for the page to fully load (watch console logs)
+- Check browser network tab for failed requests
+- Try refreshing the page
+- Check that you have a valid token in localStorage
+
+## API Endpoints Tested
+
+### GET /users/me
+Returns the current authenticated user's profile
+- Requires: Valid JWT token in Authorization header
+- Returns: UserResponse object with all user fields
+
+### GET /projects
+Returns the current user's projects
+- Requires: Valid JWT token
+- Returns: ProjectListResponse with items array, total count, pagination info
+
+## Frontend Improvements Made
+
+1. **Enhanced Logging**: Console now shows detailed debug info about API calls
+2. **Error Indicators**: Dashboard shows "⚠ Error" if API calls fail
+3. **Better Error Messages**: Auth page shows what went wrong
+4. **Test Login Page**: Quick way to test without GitHub OAuth
+
+## Next Steps
+
+1. Test the OAuth flow end-to-end by going to http://localhost:3000
+2. Verify data appears correctly in the dashboard
+3. Check browser console for any errors
+4. Use test-login.html if you need quick testing iterations
+5. When deploying to production, update environment variables for Leapcell and Vercel

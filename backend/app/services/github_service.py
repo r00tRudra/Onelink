@@ -59,10 +59,56 @@ class GitHubService:
                 )
                 
                 if response.status_code == 200:
-                    return response.json()
+                    profile = response.json()
+
+                    # GitHub may return null email on /user when email visibility is private.
+                    # Fallback to /user/emails and persist the primary verified email when available.
+                    if not profile.get("email"):
+                        profile["email"] = await self.get_primary_email(access_token)
+
+                    return profile
                 return None
         except Exception as e:
             print(f"Error fetching user profile: {e}")
+            return None
+
+    async def get_primary_email(self, access_token: str) -> Optional[str]:
+        """Fetch primary verified email from GitHub user emails endpoint"""
+        try:
+            async with httpx.AsyncClient() as client:
+                headers = {**self.HEADERS, "Authorization": f"token {access_token}"}
+                response = await client.get(
+                    f"{self.BASE_URL}/user/emails",
+                    headers=headers,
+                    timeout=10.0,
+                )
+
+                if response.status_code != 200:
+                    return None
+
+                emails = response.json()
+                if not isinstance(emails, list):
+                    return None
+
+                primary_verified = next(
+                    (
+                        item.get("email")
+                        for item in emails
+                        if item.get("primary") and item.get("verified") and item.get("email")
+                    ),
+                    None,
+                )
+
+                if primary_verified:
+                    return primary_verified
+
+                first_verified = next(
+                    (item.get("email") for item in emails if item.get("verified") and item.get("email")),
+                    None,
+                )
+                return first_verified
+        except Exception as e:
+            print(f"Error fetching user email: {e}")
             return None
     
     async def get_user_repos(self, access_token: str, username: str) -> List[Dict[str, Any]]:
@@ -77,9 +123,15 @@ class GitHubService:
                 
                 while True:
                     response = await client.get(
-                        f"{self.BASE_URL}/users/{username}/repos",
+                        f"{self.BASE_URL}/user/repos",
                         headers=headers,
-                        params={"page": page, "per_page": per_page, "sort": "updated"},
+                        params={
+                            "page": page,
+                            "per_page": per_page,
+                            "sort": "updated",
+                            "visibility": "all",
+                            "affiliation": "owner",
+                        },
                         timeout=10.0,
                     )
                     

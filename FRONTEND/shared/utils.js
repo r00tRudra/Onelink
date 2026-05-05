@@ -3,8 +3,8 @@
    ───────────────────────────────────────── */
 
 // ── API Configuration ──
-const API_URL = 'http://localhost:8000';
-const FRONTEND_URL = 'http://localhost:3000';
+const API_URL = window.ONELINK_API_URL || 'http://localhost:8000';
+const FRONTEND_URL = window.ONELINK_FRONTEND_URL || window.location.origin;
 
 // ── Authentication ──
 const Auth = {
@@ -268,73 +268,119 @@ const Timing = {
 const API = {
   async get(endpoint) {
     try {
-      const response = await fetch(`${API_URL}${endpoint}`, {
-        headers: {
-          'Authorization': `Bearer ${Auth.getToken()}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const fullURL = `${API_URL}${endpoint}`;
+      const headers = {
+        'Authorization': `Bearer ${Auth.getToken()}`,
+        'Content-Type': 'application/json'
+      };
+      
+      console.log('[API GET]', fullURL, 'Headers:', headers);
+      
+      const response = await fetch(fullURL, { headers });
 
-      if (!response.ok) throw new Error(`API Error: ${response.status}`);
-      return await response.json();
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[API ERROR]', response.status, errorText);
+        throw new Error(`API Error ${response.status}: ${errorText}`);
+      }
+      
+      const data = await response.json();
+      console.log('[API RESPONSE]', endpoint, data);
+      return data;
     } catch (error) {
-      console.error('API Error:', error);
+      console.error('[API GET ERROR]', endpoint, error);
       throw error;
     }
   },
 
   async post(endpoint, data) {
     try {
-      const response = await fetch(`${API_URL}${endpoint}`, {
+      const fullURL = `${API_URL}${endpoint}`;
+      const headers = {
+        'Authorization': `Bearer ${Auth.getToken()}`,
+        'Content-Type': 'application/json'
+      };
+      
+      console.log('[API POST]', fullURL, 'Data:', data);
+      
+      const response = await fetch(fullURL, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${Auth.getToken()}`,
-          'Content-Type': 'application/json'
-        },
+        headers,
         body: JSON.stringify(data)
       });
 
-      if (!response.ok) throw new Error(`API Error: ${response.status}`);
-      return await response.json();
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[API ERROR]', response.status, errorText);
+        throw new Error(`API Error ${response.status}: ${errorText}`);
+      }
+      
+      const responseData = await response.json();
+      console.log('[API RESPONSE]', endpoint, responseData);
+      return responseData;
     } catch (error) {
-      console.error('API Error:', error);
+      console.error('[API POST ERROR]', endpoint, error);
       throw error;
     }
   },
 
   async put(endpoint, data) {
     try {
-      const response = await fetch(`${API_URL}${endpoint}`, {
+      const fullURL = `${API_URL}${endpoint}`;
+      const headers = {
+        'Authorization': `Bearer ${Auth.getToken()}`,
+        'Content-Type': 'application/json'
+      };
+      
+      console.log('[API PUT]', fullURL, 'Data:', data);
+      
+      const response = await fetch(fullURL, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${Auth.getToken()}`,
-          'Content-Type': 'application/json'
-        },
+        headers,
         body: JSON.stringify(data)
       });
 
-      if (!response.ok) throw new Error(`API Error: ${response.status}`);
-      return await response.json();
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[API ERROR]', response.status, errorText);
+        throw new Error(`API Error ${response.status}: ${errorText}`);
+      }
+      
+      const responseData = await response.json();
+      console.log('[API RESPONSE]', endpoint, responseData);
+      return responseData;
     } catch (error) {
-      console.error('API Error:', error);
+      console.error('[API PUT ERROR]', endpoint, error);
       throw error;
     }
   },
 
   async delete(endpoint) {
     try {
-      const response = await fetch(`${API_URL}${endpoint}`, {
+      const fullURL = `${API_URL}${endpoint}`;
+      const headers = {
+        'Authorization': `Bearer ${Auth.getToken()}`,
+        'Content-Type': 'application/json'
+      };
+      
+      console.log('[API DELETE]', fullURL);
+      
+      const response = await fetch(fullURL, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${Auth.getToken()}`,
-          'Content-Type': 'application/json'
-        }
+        headers
       });
 
-      if (!response.ok) throw new Error(`API Error: ${response.status}`);
-      return await response.json();
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[API ERROR]', response.status, errorText);
+        throw new Error(`API Error ${response.status}: ${errorText}`);
+      }
+      
+      const responseData = await response.json();
+      console.log('[API RESPONSE]', endpoint, responseData);
+      return responseData;
     } catch (error) {
-      console.error('API Error:', error);
+      console.error('[API DELETE ERROR]', endpoint, error);
       throw error;
     }
   }

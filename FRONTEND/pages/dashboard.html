@@ -569,32 +569,32 @@
               <span class="stat-label">Repositories</span>
               <div class="stat-icon" style="background: var(--accent-d)">📦</div>
             </div>
-            <div class="stat-val">42</div>
-            <div class="stat-delta">↑ 3 this month</div>
+            <div class="stat-val" id="reposCount">0</div>
+            <div class="stat-delta" id="reposDelta">From synced GitHub projects</div>
           </div>
           <div class="stat-card">
             <div class="stat-card-top">
               <span class="stat-label">Total Stars</span>
               <div class="stat-icon" style="background: var(--orange-dim)">⭐</div>
             </div>
-            <div class="stat-val">1.2k</div>
-            <div class="stat-delta" style="color: var(--orange)">↑ 84 new stars</div>
+            <div class="stat-val" id="totalStars">0</div>
+            <div class="stat-delta" style="color: var(--orange)">Across your synced repositories</div>
           </div>
           <div class="stat-card">
             <div class="stat-card-top">
-              <span class="stat-label">Portfolio Views</span>
+              <span class="stat-label">Deployed Repos</span>
               <div class="stat-icon" style="background: var(--blue-dim)">👁</div>
             </div>
-            <div class="stat-val">348</div>
-            <div class="stat-delta" style="color: var(--blue)">↑ 12% this week</div>
+            <div class="stat-val" id="deployedCount">0</div>
+            <div class="stat-delta" style="color: var(--blue)">Repos with detected live demo links</div>
           </div>
           <div class="stat-card">
             <div class="stat-card-top">
-              <span class="stat-label">Followers</span>
+              <span class="stat-label">Last Sync</span>
               <div class="stat-icon" style="background: var(--green-dim)">👥</div>
             </div>
-            <div class="stat-val">340</div>
-            <div class="stat-delta">↑ 8 new followers</div>
+            <div class="stat-val" id="lastSync">-</div>
+            <div class="stat-delta" id="lastSyncDelta">Run Sync GitHub to refresh now</div>
           </div>
         </div>
 
@@ -604,47 +604,7 @@
               <span class="card-title">Recent Repositories</span>
               <button class="btn btn-ghost btn-sm" onclick="setPage('repos', null)">View all</button>
             </div>
-            <div class="repo-list">
-              <div class="repo-item">
-                <div class="repo-item-left">
-                  <span class="repo-icon">📁</span>
-                  <div>
-                    <div class="repo-name">awesome-api</div>
-                    <div class="repo-desc">FastAPI + PostgreSQL REST API</div>
-                  </div>
-                </div>
-                <div class="repo-meta">
-                  <span class="lang-dot" style="background: #3572A5"></span>
-                  <span class="repo-star">⭐ 312</span>
-                </div>
-              </div>
-              <div class="repo-item">
-                <div class="repo-item-left">
-                  <span class="repo-icon">📁</span>
-                  <div>
-                    <div class="repo-name">portfolio-v3</div>
-                    <div class="repo-desc">Next.js personal site</div>
-                  </div>
-                </div>
-                <div class="repo-meta">
-                  <span class="lang-dot" style="background: #f1e05a"></span>
-                  <span class="repo-star">⭐ 89</span>
-                </div>
-              </div>
-              <div class="repo-item">
-                <div class="repo-item-left">
-                  <span class="repo-icon">📁</span>
-                  <div>
-                    <div class="repo-name">ml-experiments</div>
-                    <div class="repo-desc">Jupyter ML research notebooks</div>
-                  </div>
-                </div>
-                <div class="repo-meta">
-                  <span class="lang-dot" style="background: #e34c26"></span>
-                  <span class="repo-star">⭐ 156</span>
-                </div>
-              </div>
-            </div>
+            <div class="repo-list" id="recentReposList"></div>
           </div>
 
           <div class="card">
@@ -667,23 +627,21 @@
       </div>
 
       <!-- Repos page -->
-      <div id="page-repos" class="page" style="display: none">
+      <div id="page-repos" class="page">
         <div class="page-header">
           <div>
             <div class="page-title">Repositories</div>
-            <div class="page-sub">42 repos synced from GitHub</div>
+            <div class="page-sub" id="reposPageSub">0 repos synced from GitHub</div>
           </div>
           <button class="btn btn-primary" onclick="syncRepos()">↻ Sync now</button>
         </div>
         <div class="card">
-          <div class="card-body">
-            Repository management coming soon...
-          </div>
+          <div class="repo-list" id="fullReposList" style="max-height: none; overflow: visible;"></div>
         </div>
       </div>
 
       <!-- Portfolio page -->
-      <div id="page-portfolio" class="page" style="display: none">
+      <div id="page-portfolio" class="page">
         <div class="page-header">
           <div>
             <div class="page-title">Portfolio <em>Preview</em></div>
@@ -692,77 +650,81 @@
           <button class="btn btn-primary" onclick="openPortfolio()">🔗 Open live</button>
         </div>
         <div class="card">
-          <div class="card-body">
-            Portfolio preview coming soon...
+          <div class="card-body" style="text-align: center; padding: var(--space-3xl);">
+            <div style="font-size: 48px; margin-bottom: var(--space-lg);">🌐</div>
+            <div style="font-size: 16px; font-weight: 600; margin-bottom: var(--space-md);">Your public portfolio</div>
+            <div id="portfolioUrl" style="font-size: 14px; color: var(--accent); margin-bottom: var(--space-lg); word-break: break-all;"></div>
+            <button class="btn btn-primary" onclick="openPortfolio()" style="margin-bottom: var(--space-lg);">Open in new tab</button>
+            <div style="font-size: 12px; color: var(--muted); margin-top: var(--space-lg);">
+              Your portfolio is live and publicly accessible. You can customize your profile from the dashboard to update how it appears to visitors.
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Resume page -->
-      <div id="page-resume" class="page" style="display: none">
+      <div id="page-resume" class="page">
         <div class="page-header">
           <div>
-            <div class="page-title">Resume <em>Import</em></div>
-            <div class="page-sub">Upload your PDF resume — we'll extract and auto-fill your profile.</div>
+            <div class="page-title">Resume <em>Text</em></div>
+            <div class="page-sub">Add a text summary of your professional profile.</div>
           </div>
+          <button class="btn btn-primary" onclick="saveResumeText()">💾 Save Resume</button>
         </div>
         <div class="card">
           <div class="card-body">
-            Resume import coming soon...
+            <textarea id="resumeTextarea" placeholder="Paste your resume text or write a professional summary..." style="width: 100%; min-height: 400px; padding: var(--space-lg); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface2); color: var(--text); font-family: monospace; font-size: 12px; resize: vertical;"></textarea>
+            <div style="margin-top: var(--space-md); color: var(--muted); font-size: 12px;">
+              <span id="charCount">0</span> / 5000 characters
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Experience page -->
-      <div id="page-experience" class="page" style="display: none">
+      <div id="page-experience" class="page">
         <div class="page-header">
           <div>
             <div class="page-title">Experience</div>
             <div class="page-sub">Add your work history to your portfolio.</div>
           </div>
-          <button class="btn btn-primary" onclick="UI.showToast('Coming soon')">+ Add experience</button>
+          <button class="btn btn-primary" onclick="UI.showToast('Add experience coming soon')">+ Add experience</button>
         </div>
         <div class="card">
-          <div class="card-body">
-            Experience management coming soon...
-          </div>
+          <div id="experienceList" class="repo-list"></div>
         </div>
       </div>
 
       <!-- Skills page -->
-      <div id="page-skills" class="page" style="display: none">
+      <div id="page-skills" class="page">
         <div class="page-header">
           <div>
             <div class="page-title">Skills</div>
             <div class="page-sub">Showcase your technical expertise.</div>
           </div>
-          <button class="btn btn-primary" onclick="UI.showToast('Coming soon')">+ Add skill</button>
+          <button class="btn btn-primary" onclick="UI.showToast('Add skill coming soon')">+ Add skill</button>
         </div>
         <div class="card">
-          <div class="card-body">
-            Skills management coming soon...
-          </div>
+          <div id="skillsList" style="display: flex; flex-wrap: wrap; gap: var(--space-md); padding: var(--space-lg);"></div>
         </div>
       </div>
 
       <!-- Education page -->
-      <div id="page-education" class="page" style="display: none">
+      <div id="page-education" class="page">
         <div class="page-header">
           <div>
             <div class="page-title">Education</div>
             <div class="page-sub">Add your academic background.</div>
           </div>
-          <button class="btn btn-primary" onclick="UI.showToast('Coming soon')">+ Add education</button>
+          <button class="btn btn-primary" onclick="UI.showToast('Add education coming soon')">+ Add education</button>
         </div>
         <div class="card">
-          <div class="card-body">
-            Education management coming soon...
-          </div>
+          <div id="educationList" class="repo-list"></div>
         </div>
       </div>
 
       <!-- Settings page -->
-      <div id="page-settings" class="page" style="display: none">
+      <div id="page-settings" class="page">
         <div class="page-header">
           <div>
             <div class="page-title">Settings</div>
@@ -785,21 +747,419 @@
   </div>
 
   <!-- Shared utilities -->
+  <script src="../shared/runtime-config.js"></script>
   <script src="../shared/utils.js"></script>
 
   <!-- Page-specific scripts -->
   <script>
-    // Check authentication
-    window.addEventListener('load', () => {
-      if (!Auth.isAuthenticated()) {
-        window.location.href = '../auth/sign-in.html';
+    function applyUserToUI(user) {
+      if (!user) return;
+
+      const displayName = user.portfolio_username || user.github_username || 'there';
+      document.getElementById('sidebarName').textContent = displayName;
+      document.getElementById('heroName').textContent = displayName;
+      document.getElementById('urlInput').value = user.portfolio_username || user.github_username || 'yourname';
+
+      const avatar = document.getElementById('sidebarAvatar');
+      if (user.avatar_url) {
+        avatar.innerHTML = `<img src="${user.avatar_url}" alt="${displayName}" />`;
+      } else {
+        avatar.textContent = (displayName || '?').charAt(0).toUpperCase();
+      }
+    }
+
+    function formatCompactNumber(value) {
+      if (value >= 1000) {
+        return `${(value / 1000).toFixed(1).replace('.0', '')}k`;
+      }
+      return `${value}`;
+    }
+
+    function formatSyncTime(timestamp) {
+      if (!timestamp) return '-';
+      const date = new Date(timestamp);
+      if (Number.isNaN(date.getTime())) return '-';
+
+      const diffMs = Date.now() - date.getTime();
+      const diffMin = Math.floor(diffMs / 60000);
+      if (diffMin < 1) return 'just now';
+      if (diffMin < 60) return `${diffMin}m ago`;
+      const diffHour = Math.floor(diffMin / 60);
+      if (diffHour < 24) return `${diffHour}h ago`;
+      const diffDay = Math.floor(diffHour / 24);
+      return `${diffDay}d ago`;
+    }
+
+    function pickLanguageColor(languages) {
+      if (!languages || typeof languages !== 'object') return '#666';
+      const entries = Object.entries(languages);
+      if (!entries.length) return '#666';
+      const [primary] = entries.sort((a, b) => b[1] - a[1])[0];
+
+      const map = {
+        Python: '#3572A5',
+        JavaScript: '#f1e05a',
+        TypeScript: '#3178c6',
+        HTML: '#e34c26',
+        CSS: '#563d7c',
+        Java: '#b07219',
+        Go: '#00ADD8',
+        Rust: '#dea584',
+      };
+      return map[primary] || '#666';
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function renderRecentRepos(projects) {
+      const container = document.getElementById('recentReposList');
+      if (!container) return;
+
+      if (!projects.length) {
+        container.innerHTML = `
+          <div class="repo-item">
+            <div class="repo-item-left">
+              <span class="repo-icon">ℹ️</span>
+              <div>
+                <div class="repo-name">No repositories yet</div>
+                <div class="repo-desc">Click "Sync GitHub" to import your latest repositories.</div>
+              </div>
+            </div>
+          </div>
+        `;
+        return;
       }
 
+      container.innerHTML = projects.slice(0, 5).map((repo) => {
+        const color = pickLanguageColor(repo.languages);
+        const name = escapeHtml(repo.name || 'Untitled repository');
+        const desc = escapeHtml(repo.description || 'No description provided');
+        return `
+          <div class="repo-item">
+            <div class="repo-item-left">
+              <span class="repo-icon">📁</span>
+              <div>
+                <div class="repo-name">${name}</div>
+                <div class="repo-desc">${desc}</div>
+              </div>
+            </div>
+            <div class="repo-meta">
+              <span class="lang-dot" style="background: ${color}"></span>
+              <span class="repo-star">⭐ ${repo.stars || 0}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderFullReposList(projects) {
+      const container = document.getElementById('fullReposList');
+      if (!container) return;
+
+      if (!projects.length) {
+        container.innerHTML = `
+          <div class="repo-item">
+            <div class="repo-item-left">
+              <span class="repo-icon">ℹ️</span>
+              <div>
+                <div class="repo-name">No repositories yet</div>
+                <div class="repo-desc">Click "Sync GitHub" to import your latest repositories.</div>
+              </div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = projects.map((repo) => {
+        const color = pickLanguageColor(repo.languages);
+        const name = escapeHtml(repo.name || 'Untitled repository');
+        const desc = escapeHtml(repo.description || 'No description provided');
+        const deployedBadge = repo.is_deployed ? '<span style="background: #1b5e20; color: #4caf50; padding: 2px 8px; border-radius: 2px; font-size: 10px; font-weight: 600; margin-left: 8px;">🚀 DEPLOYED</span>' : '';
+        const archivedBadge = repo.is_archived ? '<span style="background: #424242; color: #999; padding: 2px 8px; border-radius: 2px; font-size: 10px; font-weight: 600; margin-left: 4px;">📦 ARCHIVED</span>' : '';
+        const forkBadge = repo.is_fork ? '<span style="background: #1a237e; color: #64b5f6; padding: 2px 8px; border-radius: 2px; font-size: 10px; font-weight: 600; margin-left: 4px;">🔗 FORK</span>' : '';
+        
+        return `
+          <div class="repo-item" style="flex-direction: column; align-items: flex-start; padding-bottom: var(--space-lg); margin-bottom: var(--space-lg); border-bottom: 1px solid var(--border);">
+            <div style="width: 100%; display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-sm);">
+              <div class="repo-item-left" style="flex: 1;">
+                <span class="repo-icon">📁</span>
+                <div>
+                  <div class="repo-name">${name}</div>
+                  <div class="repo-desc">${desc}</div>
+                </div>
+              </div>
+              <div style="display: flex; gap: 4px; white-space: nowrap;">${deployedBadge}${archivedBadge}${forkBadge}</div>
+            </div>
+            <div class="repo-meta" style="width: 100%; justify-content: space-between; padding-top: var(--space-sm);">
+              <div style="display: flex; gap: var(--space-lg); color: var(--muted); font-size: 12px;">
+                <span>⭐ ${repo.stars || 0} stars</span>
+                <span>🔀 ${repo.forks || 0} forks</span>
+                <span>👀 ${repo.watchers || 0} watchers</span>
+              </div>
+              <a href="${repo.url}" target="_blank" style="color: var(--accent); text-decoration: none; font-size: 12px; font-weight: 500;">View on GitHub →</a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function loadExperience() {
+      try {
+        const exp = await API.get('/users/me/experience');
+        const container = document.getElementById('experienceList');
+        if (!exp || exp.length === 0) {
+          container.innerHTML = '<div style="padding: var(--space-lg); color: var(--muted);">No experience added yet. Click "+ Add experience" to get started.</div>';
+          return;
+        }
+        container.innerHTML = exp.map((e) => `
+          <div class="repo-item" style="flex-direction: column; align-items: flex-start;">
+            <div style="font-weight: 600; color: var(--accent);">${escapeHtml(e.title || 'Untitled')}</div>
+            <div style="font-size: 12px; color: var(--muted);">${escapeHtml(e.company || 'Company')} • ${e.start_date || 'Start'}</div>
+            <div style="font-size: 12px; color: var(--text); margin-top: 4px;">${escapeHtml(e.description || '')}</div>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Failed to load experience:', error);
+        document.getElementById('experienceList').innerHTML = '<div style="padding: var(--space-lg); color: #ff6b6b;">Failed to load experience data</div>';
+      }
+    }
+
+    async function loadSkills() {
+      try {
+        const skills = await API.get('/users/me/skills');
+        const container = document.getElementById('skillsList');
+        if (!skills || skills.length === 0) {
+          container.innerHTML = '<div style="color: var(--muted);">No skills added yet. Click "+ Add skill" to get started.</div>';
+          return;
+        }
+        container.innerHTML = skills.map((s) => `
+          <div style="background: var(--accent-dim); color: var(--accent); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 500;">
+            ${escapeHtml(s.name || 'Skill')}
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Failed to load skills:', error);
+        document.getElementById('skillsList').innerHTML = '<div style="color: #ff6b6b;">Failed to load skills data</div>';
+      }
+    }
+
+    async function loadEducation() {
+      try {
+        const edu = await API.get('/users/me/education');
+        const container = document.getElementById('educationList');
+        if (!edu || edu.length === 0) {
+          container.innerHTML = '<div style="padding: var(--space-lg); color: var(--muted);">No education added yet. Click "+ Add education" to get started.</div>';
+          return;
+        }
+        container.innerHTML = edu.map((e) => `
+          <div class="repo-item" style="flex-direction: column; align-items: flex-start;">
+            <div style="font-weight: 600; color: var(--accent);">${escapeHtml(e.degree || 'Degree')} in ${escapeHtml(e.field_of_study || 'Field')}</div>
+            <div style="font-size: 12px; color: var(--muted);">${escapeHtml(e.school || 'School')} • ${e.start_date || 'Start'} to ${e.end_date || 'Present'}</div>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Failed to load education:', error);
+        document.getElementById('educationList').innerHTML = '<div style="padding: var(--space-lg); color: #ff6b6b;">Failed to load education data</div>';
+      }
+    }
+
+    async function loadResumeText() {
+      try {
+        const user = Auth.getUser();
+        const textarea = document.getElementById('resumeTextarea');
+        if (textarea && user) {
+          textarea.value = user.resume_text || '';
+          document.getElementById('charCount').textContent = textarea.value.length;
+          textarea.addEventListener('input', (e) => {
+            document.getElementById('charCount').textContent = e.target.value.length;
+          });
+        }
+      } catch (error) {
+        console.error('Failed to load resume:', error);
+      }
+    }
+
+    async function saveResumeText() {
+      try {
+        const textarea = document.getElementById('resumeTextarea');
+        const text = textarea.value.slice(0, 5000);
+        await API.put('/users/me', { resume_text: text });
+        UI.showToast('✓ Resume saved successfully');
+        const user = Auth.getUser();
+        user.resume_text = text;
+        Auth.setUser(user);
+      } catch (error) {
+        UI.showToast('Failed to save resume');
+        console.error('Error saving resume:', error);
+      }
+    }
+
+    async function loadPortfolioPreview() {
+      try {
+        const user = Auth.getUser();
+        if (user && user.portfolio_username) {
+          const portfolioUrl = `http://onelink.dev/${user.portfolio_username}`;
+          document.getElementById('portfolioUrl').textContent = portfolioUrl;
+        }
+      } catch (error) {
+        console.error('Failed to load portfolio preview:', error);
+      }
+    }
+
+    function openPortfolio() {
       const user = Auth.getUser();
-      if (user) {
-        document.getElementById('sidebarName').textContent = user.portfolio_username || user.github_username;
+      if (user && user.portfolio_username) {
+        window.open(`http://onelink.dev/${user.portfolio_username}`, '_blank');
+      }
+    }
+
+    async function loadProjects() {
+      try {
+        console.log('[DEBUG] API_URL:', API_URL);
+        console.log('[DEBUG] Token:', Auth.getToken());
+        const data = await API.get('/projects?skip=0&limit=50');
+        console.log('[DEBUG] Projects API response:', data);
+        const projects = (data && data.items) ? data.items : [];
+        console.log('[DEBUG] Extracted projects array:', projects);
+
+        const totalStars = projects.reduce((sum, project) => sum + (project.stars || 0), 0);
+        const deployedCount = projects.filter((project) => project.is_deployed).length;
+
+        document.getElementById('reposCount').textContent = `${projects.length}`;
+        document.getElementById('totalStars').textContent = formatCompactNumber(totalStars);
+        document.getElementById('deployedCount').textContent = `${deployedCount}`;
+        document.getElementById('reposPageSub').textContent = `${projects.length} repos synced from GitHub`;
+
+        const user = Auth.getUser();
+        document.getElementById('lastSync').textContent = formatSyncTime(user && user.last_sync);
+        document.getElementById('lastSyncDelta').textContent = user && user.last_sync
+          ? `Last updated ${formatSyncTime(user.last_sync)}`
+          : 'Run Sync GitHub to refresh now';
+
+        renderRecentRepos(projects);
+        renderFullReposList(projects);
+      } catch (error) {
+        console.error('[ERROR] Failed to load projects:', error.message, error);
+        // Show error state
+        document.getElementById('reposCount').innerHTML = '<span style="color: #ff6b6b; font-size: 14px;">⚠ Error</span>';
+        document.getElementById('totalStars').innerHTML = '<span style="color: #ff6b6b; font-size: 14px;">⚠ Error</span>';
+        document.getElementById('deployedCount').innerHTML = '<span style="color: #ff6b6b; font-size: 14px;">⚠ Error</span>';
+        document.getElementById('reposDelta').textContent = 'Failed to load GitHub data. Check your token or try refreshing.';
+      }
+    }
+
+    async function loadExperience() {
+      try {
+        const exp = await API.get('/users/me/experience');
+        const container = document.getElementById('experienceList');
+        if (!exp || exp.length === 0) {
+          container.innerHTML = '<div style="padding: var(--space-lg); color: var(--muted);">No experience added yet. Click "+ Add experience" to get started.</div>';
+          return;
+        }
+        container.innerHTML = exp.map((e) => `
+          <div class="repo-item" style="flex-direction: column; align-items: flex-start;">
+            <div style="font-weight: 600; color: var(--accent);">${escapeHtml(e.title || 'Untitled')}</div>
+            <div style="font-size: 12px; color: var(--muted);">${escapeHtml(e.company || 'Company')} • ${e.start_date || 'Start'}</div>
+            <div style="font-size: 12px; color: var(--text); margin-top: 4px;">${escapeHtml(e.description || '')}</div>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Failed to load experience:', error);
+        document.getElementById('experienceList').innerHTML = '<div style="padding: var(--space-lg); color: #ff6b6b;">Failed to load experience data</div>';
+      }
+    }
+
+    async function loadSkills() {
+      try {
+        const skills = await API.get('/users/me/skills');
+        const container = document.getElementById('skillsList');
+        if (!skills || skills.length === 0) {
+          container.innerHTML = '<div style="color: var(--muted);">No skills added yet. Click "+ Add skill" to get started.</div>';
+          return;
+        }
+        container.innerHTML = skills.map((s) => `
+          <div style="background: var(--accent-dim); color: var(--accent); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 500;">
+            ${escapeHtml(s.name || 'Skill')}
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Failed to load skills:', error);
+        document.getElementById('skillsList').innerHTML = '<div style="color: #ff6b6b;">Failed to load skills data</div>';
+      }
+    }
+
+    async function loadEducation() {
+      try {
+        const edu = await API.get('/users/me/education');
+        const container = document.getElementById('educationList');
+        if (!edu || edu.length === 0) {
+          container.innerHTML = '<div style="padding: var(--space-lg); color: var(--muted);">No education added yet. Click "+ Add education" to get started.</div>';
+          return;
+        }
+        container.innerHTML = edu.map((e) => `
+          <div class="repo-item" style="flex-direction: column; align-items: flex-start;">
+            <div style="font-weight: 600; color: var(--accent);">${escapeHtml(e.degree || 'Degree')} in ${escapeHtml(e.field_of_study || 'Field')}</div>
+            <div style="font-size: 12px; color: var(--muted);">${escapeHtml(e.school || 'School')} • ${e.start_date || 'Start'} to ${e.end_date || 'Present'}</div>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Failed to load education:', error);
+        document.getElementById('educationList').innerHTML = '<div style="padding: var(--space-lg); color: #ff6b6b;">Failed to load education data</div>';
+      }
+    }
+
+    async function hydrateUserProfile() {
+      const cachedUser = Auth.getUser();
+      console.log('[DEBUG] Cached user:', cachedUser);
+      if (cachedUser) {
+        applyUserToUI(cachedUser);
       }
 
+      try {
+        console.log('[DEBUG] Fetching /users/me...');
+        const profile = await API.get('/users/me');
+        console.log('[DEBUG] Profile API response:', profile);
+        if (profile) {
+          Auth.setUser(profile);
+          applyUserToUI(profile);
+        }
+      } catch (error) {
+        console.error('[ERROR] Failed to fetch profile:', error.message, error);
+        // If we can't fetch profile and don't have cached data, show error
+        if (!cachedUser) {
+          document.getElementById('heroName').textContent = 'user';
+          document.getElementById('sidebarName').textContent = 'Error loading profile';
+        }
+      }
+
+      await loadProjects();
+    }
+
+    // Check authentication
+    window.addEventListener('load', async () => {
+      if (!Auth.isAuthenticated()) {
+        console.log('[AUTH] User not authenticated, redirecting to sign-in');
+        window.location.href = '../auth/sign-in.html';
+        return;
+      }
+
+      console.log('[LOAD] Starting to hydrate user profile');
+      // Show loading state
+      document.querySelectorAll('.stat-val').forEach(el => {
+        if (!el.textContent.includes('Error')) {
+          el.innerHTML = '<span style="opacity: 0.5;">⟳</span>';
+        }
+      });
+
+      await hydrateUserProfile();
       Observer.initReveal();
     });
 
@@ -829,6 +1189,19 @@
       };
       document.getElementById('pageTitle').textContent = titles[pageName] || 'Dashboard';
 
+      // Load page-specific data
+      if (pageName === 'experience') {
+        loadExperience();
+      } else if (pageName === 'skills') {
+        loadSkills();
+      } else if (pageName === 'education') {
+        loadEducation();
+      } else if (pageName === 'resume') {
+        loadResumeText();
+      } else if (pageName === 'portfolio') {
+        loadPortfolioPreview();
+      }
+
       // Close sidebar on mobile
       closeSidebar();
     }
@@ -845,19 +1218,21 @@
     }
 
     // Actions
-    function syncRepos() {
+    async function syncRepos() {
       UI.showToast('Syncing with GitHub...');
+      try {
+        const result = await API.post('/projects/sync', {});
+        await hydrateUserProfile();
+        UI.showToast(result && result.message ? result.message : 'GitHub sync completed');
+      } catch (error) {
+        UI.showToast('Failed to sync repositories');
+      }
     }
 
     function copyPortfolioLink() {
       const url = `onelink.dev/${document.getElementById('urlInput').value}`;
       navigator.clipboard.writeText(url);
       UI.showToast('Portfolio link copied!');
-    }
-
-    function openPortfolio() {
-      const username = document.getElementById('urlInput').value;
-      window.open(`http://onelink.dev/${username}`, '_blank');
     }
 
     function handleLogout() {

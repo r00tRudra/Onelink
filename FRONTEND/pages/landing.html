@@ -831,6 +831,7 @@
   </footer>
 
   <!-- Shared utility scripts -->
+  <script src="../shared/runtime-config.js"></script>
   <script src="../shared/utils.js"></script>
 
   <!-- Page-specific scripts -->
@@ -855,6 +856,19 @@
 
     function closeMobileNav() {
       DOM.byId('mobileNav').classList.remove('open');
+    }
+
+    async function hydrateUserProfile() {
+      if (!Auth.isAuthenticated()) return;
+
+      try {
+        const profile = await API.get('/users/me');
+        if (profile) {
+          Auth.setUser(profile);
+        }
+      } catch (error) {
+        console.warn('Unable to refresh profile from backend:', error);
+      }
     }
 
     // Render nav based on auth state
@@ -891,8 +905,9 @@
     }
 
     // Init reveal animations
-    window.addEventListener('load', () => {
+    window.addEventListener('load', async () => {
       Observer.initReveal();
+      await hydrateUserProfile();
       renderNav();
     });
   </script>

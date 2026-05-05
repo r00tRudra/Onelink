@@ -5,15 +5,16 @@ from typing import Generator
 
 from app.core.config import settings
 
-# SQLite database file will be created in the project root
-# (you can change the path if you prefer another location)
-DATABASE_URL = f"sqlite:///./{settings.DB_NAME}"
+DATABASE_URL = settings.database_url
 
-# SQLite-specific connect args (important for thread safety in FastAPI)
+connect_args = {}
+if DATABASE_URL.startswith("sqlite"):
+    connect_args = {"check_same_thread": False}
+
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"check_same_thread": False},   # required for sqlite + concurrent access
-    # echo=True,   # uncomment during development to see SQL queries
+    connect_args=connect_args,
+    pool_pre_ping=True,
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
