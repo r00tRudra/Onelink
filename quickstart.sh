@@ -50,7 +50,7 @@ DATABASE_URL=sqlite:///./portfolio.db
 # GitHub OAuth - CHANGE THESE VALUES
 GITHUB_CLIENT_ID=your_github_app_id
 GITHUB_CLIENT_SECRET=your_github_app_secret
-GITHUB_REDIRECT_URI=http://localhost:8000/auth/callback
+GITHUB_OAUTH_REDIRECT_URI=http://localhost:8000/auth/callback
 
 # JWT
 SECRET_KEY=your-secret-key-change-this-in-production

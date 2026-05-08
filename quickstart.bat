@@ -55,7 +55,7 @@ if not exist ".env" (
         echo # GitHub OAuth - CHANGE THESE VALUES
         echo GITHUB_CLIENT_ID=your_github_app_id
         echo GITHUB_CLIENT_SECRET=your_github_app_secret
-        echo GITHUB_REDIRECT_URI=http://localhost:8000/auth/callback
+        echo GITHUB_OAUTH_REDIRECT_URI=http://localhost:8000/auth/callback
         echo.
         echo # JWT
         echo SECRET_KEY=your-secret-key-change-this-in-production

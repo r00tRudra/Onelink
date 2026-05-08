@@ -2,6 +2,7 @@ import httpx
 import re
 from typing import Optional, List, Dict, Any
 from datetime import datetime
+from urllib.parse import quote
 from app.core.config import settings
 
 
@@ -17,12 +18,16 @@ class GitHubService:
     
     async def get_oauth_url(self, state: str) -> str:
         """Get GitHub OAuth authorization URL"""
+        # GitHub expects scopes to be space-separated and URL-encoded
+        scopes = "user:email public_repo repo"
+        scope_param = quote(scopes)
+        redirect_uri_param = quote(settings.GITHUB_OAUTH_REDIRECT_URI, safe="")
         return (
             f"https://github.com/login/oauth/authorize?"
             f"client_id={self.client_id}"
-            f"&redirect_uri={settings.GITHUB_OAUTH_REDIRECT_URI}"
+            f"&redirect_uri={redirect_uri_param}"
             f"&state={state}"
-            f"&scope=user:email,public_repo,repo"
+            f"&scope={scope_param}"
         )
     
     async def exchange_code_for_token(self, code: str) -> Optional[Dict[str, Any]]:

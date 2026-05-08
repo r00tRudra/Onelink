@@ -1,12 +1,16 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
+from pydantic import Field, AliasChoices
 
 
 class Settings(BaseSettings):
     # GitHub OAuth
     GITHUB_CLIENT_ID: str
     GITHUB_CLIENT_SECRET: str
-    GITHUB_OAUTH_REDIRECT_URI: str = "http://localhost:8000/auth/callback"
+    GITHUB_OAUTH_REDIRECT_URI: str = Field(
+        default="http://localhost:8000/auth/callback",
+        validation_alias=AliasChoices("GITHUB_OAUTH_REDIRECT_URI", "GITHUB_REDIRECT_URI"),
+    )
 
     # App
     FRONTEND_CALLBACK_URL: str = "http://localhost:3000/auth/sign-in.html"
