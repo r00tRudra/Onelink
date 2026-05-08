@@ -4,7 +4,7 @@
 
 **Status**: Production Ready | **Version**: 1.0.0 | **Full Stack Complete**
 
-OneLink Portfolio is a complete full-stack application with both FastAPI backend and Next.js frontend. Automatically sync your GitHub repositories, build a stunning portfolio, and share it with the world.
+OneLink Portfolio is a complete full-stack application with a FastAPI backend and a static HTML/CSS/JS frontend. Automatically sync your GitHub repositories, build a stunning portfolio, and share it with the world.
 
 ---
 
@@ -81,7 +81,7 @@ OneLink Portfolio is a complete full-stack application with both FastAPI backend
 
 ### 🛠️ Configuration
 
-- **.env.example** - Environment template
+- **backend/.env** - Environment configuration file
 - **requirements.txt** - Python dependencies (v2.0 locked)
 - **backend/README.md** - Backend overview
 
@@ -90,22 +90,26 @@ OneLink Portfolio is a complete full-stack application with both FastAPI backend
 ## 🚀 Getting Started (30 seconds)
 
 ```bash
-# 1. Navigate to backend
+# 1) Backend setup
 cd backend
-
-# 2. Install dependencies
 pip install -r requirements.txt
 
-# 3. Setup environment (need GitHub OAuth credentials)
-cp ../.env.example ../.env
-# Edit .env with GitHub Client ID & Secret
+# 2) Create backend/.env (required)
+cat > .env << 'EOF'
+GITHUB_CLIENT_ID=your_github_app_id
+GITHUB_CLIENT_SECRET=your_github_app_secret
+GITHUB_OAUTH_REDIRECT_URI=http://localhost:8000/auth/callback
+FRONTEND_CALLBACK_URL=http://localhost:3000/auth/sign-in.html
+ALLOWED_ORIGINS=http://localhost:3000
+SECRET_KEY=replace-with-a-strong-secret
+EOF
 
-# 4. Run server
-uvicorn app.main:app --reload
+# 3) Run backend API
+uvicorn app.main:app --reload --port 8000
 
-# 5. Open browser
-# API Docs: http://localhost:8000/docs
-# Health: http://localhost:8000/health
+# 4) In another terminal, serve frontend
+cd ../FRONTEND
+python3 -m http.server 3000 --bind 0.0.0.0
 ```
 
 ---
@@ -170,7 +174,7 @@ onelink-portfolio/
 │   │   └── main.py           (FastAPI app setup)
 │   ├── requirements.txt      (locked versions)
 │   └── README.md             (technical docs)
-├── .env.example              (config template)
+├── FRONTEND/                 (static frontend app)
 ├── QUICK_START.md            (setup guide)
 ├── API_DOCUMENTATION.md      (endpoint reference)
 ├── IMPLEMENTATION_GUIDE.md   (development guide)
@@ -324,7 +328,7 @@ docker run -p 8000:8000 onelink-backend
 
 ## 🔧 Configuration
 
-All configuration through `.env`:
+Core configuration through `backend/.env`:
 
 ```env
 # GitHub OAuth
@@ -343,6 +347,20 @@ DB_NAME=onelink_portfolio.db
 # Upload
 MAX_UPLOAD_SIZE=10485760
 UPLOAD_DIR=uploads
+```
+
+## ⚠️ OAuth Callback URL Must Match Exactly
+
+If GitHub shows: `The redirect_uri is not associated with this application`, verify these are an exact match:
+
+1. GitHub OAuth App callback URL
+2. `GITHUB_OAUTH_REDIRECT_URI` in `backend/.env`
+3. Backend callback route (`/auth/callback`)
+
+Expected local value:
+
+```text
+http://localhost:8000/auth/callback
 ```
 
 ---
