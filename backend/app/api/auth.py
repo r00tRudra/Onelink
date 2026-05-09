@@ -17,8 +17,6 @@ router = APIRouter()
 # Store OAuth states temporarily (in production, use Redis)  
 oauth_states = {}
 
-
-
 @router.get("/login")
 async def github_login():
     """Initiate GitHub OAuth login"""
