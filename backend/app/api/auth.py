@@ -14,8 +14,9 @@ from app.schemas.user import TokenResponse, OAuthCallbackRequest
 
 router = APIRouter()
 
-# Store OAuth states temporarily (in production, use Redis)
+# Store OAuth states temporarily (in production, use Redis)  
 oauth_states = {}
+
 
 
 @router.get("/login")
@@ -36,7 +37,7 @@ async def github_callback(
 ):
     """Handle GitHub OAuth callback"""
     
-    # Validate state
+    # Validate state  
     if state not in oauth_states:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -45,7 +46,7 @@ async def github_callback(
     
     del oauth_states[state]
     
-    # Exchange code for access token
+    # Exchange code for access token  
     token_response = await github_service.exchange_code_for_token(code)
     if not token_response or "access_token" not in token_response:
         raise HTTPException(
@@ -55,7 +56,7 @@ async def github_callback(
     
     access_token = token_response.get("access_token")
     
-    # Fetch user profile from GitHub
+    # Fetch user profile from GitHub  
     user_profile = await github_service.get_user_profile(access_token)
     if not user_profile:
         raise HTTPException(
@@ -70,7 +71,7 @@ async def github_callback(
     existing_user = db.query(User).filter(User.github_id == github_id).first()
     
     if existing_user:
-        # Update existing user
+        # Update existing user  
         existing_user.access_token = access_token
         existing_user.avatar_url = user_profile.get("avatar_url")
         existing_user.profile_url = user_profile.get("html_url")
