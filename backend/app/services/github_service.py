@@ -5,7 +5,6 @@ from datetime import datetime
 from urllib.parse import quote
 from app.core.config import settings
 
-
 class GitHubService:
     """Service for GitHub API interactions"""
     
