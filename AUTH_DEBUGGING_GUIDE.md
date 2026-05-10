@@ -53,21 +53,7 @@ Should return the user object with fields like `github_username`, `portfolio_use
 Open browser DevTools → Console tab and look for messages prefixed with:
 - `[DEBUG]` - Shows API calls and responses
 - `[ERROR]` - Shows errors
-- `[AUTH]` - Shows authentication flow details
-
-#### Test API Endpoints Directly
-From browser DevTools Console:
-```javascript
-// Get user profile
-fetch('http://localhost:8000/users/me', {
-  headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
-}).then(r => r.json()).then(console.log)
-
-// Get projects
-fetch('http://localhost:8000/projects', {
-  headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
-}).then(r => r.json()).then(console.log)
-```
+halloooo
 
 ## Common Issues and Solutions
 
