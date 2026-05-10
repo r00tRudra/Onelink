@@ -20,27 +20,7 @@ GitHub Callback to Backend (http://localhost:8000/auth/callback?code=...&state=.
 Redirect to Frontend (http://localhost:3000/auth/sign-in.html?token=...&user_id=...&username=...)
     ↓ Frontend extracts token from URL
 Store in localStorage + Fetch user profile
-    ↓ Redirect to dashboard with token in localStorage
-Dashboard (pages/dashboard.html)
-    ↓ Load with authenticated API calls
-Display user data and projects
-```
-
-## Testing the Application
-
-### Option 1: Using the Test Login Page (Quick Testing)
-The fastest way to test is to bypass GitHub OAuth:
-hello world
-
-### Debugging the Authentication Flow
-
-#### Check if Token is in localStorage
-Open browser DevTools Console and run:
-```javascript
-localStorage.getItem('access_token')d
-
-tfdthgc
-```
+   
 
 Should return a JWT token starting with `eyJ...`
 
