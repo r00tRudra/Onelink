@@ -37,25 +37,14 @@ hello world
 #### Check if Token is in localStorage
 Open browser DevTools Console and run:
 ```javascript
-localStorage.getItem('access_token')
+localStorage.getItem('access_token')d
+
+tfdthgc
 ```
 
 Should return a JWT token starting with `eyJ...`
 
-#### Check if User Data is in localStorage
-```javascript
-JSON.parse(localStorage.getItem('auth_user'))
-```
 
-Should return the user object with fields like `github_username`, `portfolio_username`, `email`, etc.
-
-#### Check Browser Console for Errors
-Open browser DevTools → Console tab and look for messages prefixed with:
-- `[DEBUG]` - Shows API calls and responses
-- `[ERROR]` - Shows errors
-halloooo
-
-hiiiii
 
 give me that 
 removed the guide 
