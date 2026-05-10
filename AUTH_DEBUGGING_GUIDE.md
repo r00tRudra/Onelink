@@ -55,17 +55,7 @@ Open browser DevTools → Console tab and look for messages prefixed with:
 - `[ERROR]` - Shows errors
 halloooo
 
-## Common Issues and Solutions
-
-### Issue: Dashboard shows "Error" with loading spinner
-**Cause**: Token is missing or invalid
-**Solution**: 
-- Check localStorage for access_token
-- Try logging out and logging back in through GitHub OAuth
-- Or use test-login.html for quick testing
-
-fghijk
-abcd e
+hiiiii
 
 give me that 
 removed the guide 
