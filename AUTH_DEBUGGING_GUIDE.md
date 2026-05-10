@@ -1,8 +1,5 @@
 # OneLink Authentication & Data Loading Guide
 
-## Issue Summary
-The frontend dashboard was showing null/0 values for all profile details because users didn't have a valid JWT token stored in localStorage.
-Rudra i am 
 
 ## How It Works (Normal Flow)
 
