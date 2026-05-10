@@ -111,21 +111,7 @@ fetch('http://localhost:8000/projects', {
 - Try logging out and logging back in through GitHub OAuth
 - Or use test-login.html for quick testing
 
-### Issue: API calls return 401 Unauthorized
-**Cause**: Token is expired or invalid
-**Solution**:
-- Clear localStorage and log in again
-- Check that the SECRET_KEY in .env matches what the backend is using
-- Check that the token wasn't modified
-
-### Issue: Projects show as "0" repos
-**Cause**: Either no projects synced or API call failed
-**Solution**:
-- Click "Sync GitHub" button on the dashboard
-- Check browser console for API errors
-- Verify the user has GitHub repositories
-- Check that the GitHub access token is still valid
-
+fghijk
 abcd e
 
 give me that 
