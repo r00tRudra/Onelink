@@ -141,16 +141,5 @@ Returns the current authenticated user's profile
 - Requires: Valid JWT token in Authorization header
 - Returns: UserResponse object with all user fields
 
-### GET /projects
-Returns the current user's projects
-- Requires: Valid JWT token
-- Returns: ProjectListResponse with items array, total count, pagination info
-
-## Frontend Improvements Made
-
-1. **Enhanced Logging**: Console now shows detailed debug info about API calls
-2. **Error Indicators**: Dashboard shows "⚠ Error" if API calls fail
-3. **Better Error Messages**: Auth page shows what went wrong
-4. **Test Login Page**: Quick way to test without GitHub OAuth
-
+give me that 
 removed the guide 
