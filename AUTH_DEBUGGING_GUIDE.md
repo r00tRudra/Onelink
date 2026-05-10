@@ -153,10 +153,4 @@ Returns the current user's projects
 3. **Better Error Messages**: Auth page shows what went wrong
 4. **Test Login Page**: Quick way to test without GitHub OAuth
 
-## Next Steps
-
-1. Test the OAuth flow end-to-end by going to http://localhost:3000
-2. Verify data appears correctly in the dashboard
-3. Check browser console for any errors
-4. Use test-login.html if you need quick testing iterations
-5. When deploying to production, update environment variables for Leapcell and Vercel
+removed the guide 
