@@ -30,22 +30,7 @@ Display user data and projects
 
 ### Option 1: Using the Test Login Page (Quick Testing)
 The fastest way to test is to bypass GitHub OAuth:
-
-1. Start both servers:
-   ```bash
-   # Terminal 1: Backend
-   cd c:\backend\fastapi\Onelink\backend
-   python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
-
-   # Terminal 2: Frontend
-   cd c:\backend\fastapi\Onelink\FRONTEND
-   python -m http.server 3000
-   ```
-
-2. Open http://localhost:3000/test-login.html in your browser
-
-3. Click "Login & Test Dashboard" button
-abcde fgho
+hello world
 
 ### Debugging the Authentication Flow
 
