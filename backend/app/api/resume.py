@@ -1,6 +1,7 @@
 from fastapi import APIRouter, File, UploadFile, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.db.database import get_db
+from app.core.config import settings
 from app.core.security import get_current_user
 from app.models.user import User
 from app.services.resume_parser import resume_parser
@@ -19,15 +20,10 @@ async def upload_resume(
 ):
     """Upload and parse resume"""
 
-    allowed_types = [
-        "application/pdf",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    ]
-
-    if file.content_type not in allowed_types:
+    if file.content_type not in settings.ALLOWED_MEDIA_TYPES:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Only PDF and DOCX files are supported",
+            detail="Unsupported file type",
         )
 
     suffix = ".pdf" if file.content_type == "application/pdf" else ".docx"
