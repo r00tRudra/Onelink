@@ -126,20 +126,7 @@ fetch('http://localhost:8000/projects', {
 - Verify the user has GitHub repositories
 - Check that the GitHub access token is still valid
 
-### Issue: Profile shows "Loading..." and doesn't update
-**Cause**: API call is still in progress or failed
-**Solution**:
-- Wait for the page to fully load (watch console logs)
-- Check browser network tab for failed requests
-- Try refreshing the page
-- Check that you have a valid token in localStorage
-
-## API Endpoints Tested
-
-### GET /users/me
-Returns the current authenticated user's profile
-- Requires: Valid JWT token in Authorization header
-- Returns: UserResponse object with all user fields
+abcd e
 
 give me that 
 removed the guide 
