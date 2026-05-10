@@ -45,17 +45,7 @@ The fastest way to test is to bypass GitHub OAuth:
 2. Open http://localhost:3000/test-login.html in your browser
 
 3. Click "Login & Test Dashboard" button
-
-4. Dashboard should load with real data from the database
-
-### Option 2: Full OAuth Flow (Production Testing)
-1. Go to http://localhost:3000 (landing page)
-2. Click "Sign in" button
-3. Click "Start with GitHub" or the GitHub button in the sign-in form
-4. You'll be redirected to GitHub to authorize the application
-5. After authorization, you'll be redirected back to the sign-in page with a token in the URL
-6. The token will be extracted and stored in localStorage
-7. You'll be redirected to the dashboard
+abcde fgho
 
 ### Debugging the Authentication Flow
 
