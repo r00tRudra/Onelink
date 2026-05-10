@@ -2,15 +2,7 @@
 
 ## Issue Summary
 The frontend dashboard was showing null/0 values for all profile details because users didn't have a valid JWT token stored in localStorage.
-
-## Root Cause
-The authentication flow requires users to:
-1. Click "Sign in with GitHub" on the landing page
-2. Authorize the GitHub OAuth application
-3. Be redirected back to the callback URL with a token
-4. Have that token stored in localStorage before accessing the dashboard
-
-If any step fails or is incomplete, users end up without a token and get redirected to the sign-in page.
+Rudra i am 
 
 ## How It Works (Normal Flow)
 
