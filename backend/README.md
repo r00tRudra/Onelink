@@ -10,6 +10,8 @@ A FastAPI backend for building auto-updated portfolios directly from GitHub data
 - Unique portfolio username generation
 - Secure access token storage
 
+- 
+
 ### 2. **Automatic GitHub Sync**
 - Fetch all public repositories
 - Filter forked/archived repositories
