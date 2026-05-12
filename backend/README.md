@@ -86,6 +86,8 @@ Server runs on `http://localhost:8000`
 
 ## API Endpoints
 
+
+
 ### Authentication
 ```
 GET  /auth/login                    # Initiate GitHub OAuth login
