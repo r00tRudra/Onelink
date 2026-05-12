@@ -17,6 +17,8 @@ A FastAPI backend for building auto-updated portfolios directly from GitHub data
 - Fetch README content
 - Auto-detect live demo URLs
 
+- 
+
 ### 3. **Project Classification**
 - Automatic status detection (deployed, code_only, in_progress)
 - Demo URL detection from homepage/README
