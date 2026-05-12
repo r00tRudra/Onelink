@@ -11,9 +11,6 @@ The fundamental issue was that users needed to complete the GitHub OAuth flow to
 ### Secondary Issue: API Responses Not Checked
 When API calls failed silently, the dashboard would display the default "0" values rather than showing error states or helpful messages.
 
-
-
-
 ### Tertiary Issue: No Loading Indicators
 While APIs were being called asynchronously, the page would briefly show "0" values before data loaded, creating a poor user experience.
 
