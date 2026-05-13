@@ -63,6 +63,8 @@ Centralized CSS variables for:
    - Positioning (fixed, absolute, sticky, z-index)
    - Effects (shadows, blur, opacity)
    - Animations (reveal, slide, fade)
+  
+     
 
 4. **responsive.css**: Mobile-first breakpoints
    - `max-width: 1100px` (large tablets)
