@@ -158,6 +158,8 @@ API.delete(endpoint)         // DELETE request
 
 **Purpose**: OAuth authentication with GitHub/Google
 
+
+
 **Sections**:
 - Login view with OAuth buttons
 - Callback handler (receives token from backend)
