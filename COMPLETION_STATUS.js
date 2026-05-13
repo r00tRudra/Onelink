@@ -80,8 +80,6 @@ console.log(`Database Models:         ${completion.database.models}`);
 console.log(`Documentation Files:     ${completion.documentation.files}`);
 console.log();
 
-
-
 console.log("🏗️  BACKEND STACK:");
 console.log("─────────────────────────────────────────────────────────────");
 console.log("• FastAPI 0.104 - Modern async web framework");
